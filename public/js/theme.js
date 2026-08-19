@@ -35,4 +35,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+    // Mobile hamburger drawer
+    const hamburgerBtn = document.getElementById("hamburgerBtn");
+    const mobileDrawer = document.getElementById("mobileDrawer");
+    const mobileOverlay = document.getElementById("mobileOverlay");
+    const mobileCloseBtn = document.getElementById("mobileCloseBtn");
+
+    function openDrawer() {
+        if (mobileDrawer) mobileDrawer.classList.add("show");
+        if (mobileOverlay) mobileOverlay.classList.add("show");
+    }
+
+    function closeDrawer() {
+        if (mobileDrawer) mobileDrawer.classList.remove("show");
+        if (mobileOverlay) mobileOverlay.classList.remove("show");
+    }
+
+    if (hamburgerBtn) hamburgerBtn.addEventListener("click", openDrawer);
+    if (mobileCloseBtn) mobileCloseBtn.addEventListener("click", closeDrawer);
+    if (mobileOverlay) mobileOverlay.addEventListener("click", closeDrawer);
+
 });

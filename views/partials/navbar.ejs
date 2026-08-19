@@ -10,6 +10,10 @@
 
         <div class="nav-container">
 
+            <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+
             <div class="left-menu">
                 <% categories.forEach(function(cat){ %>
                     <a href="/product/category/<%= cat._id %>"><%= cat.name %></a>
@@ -18,7 +22,7 @@
 
             <div class="logo">
                 <a href="/product/home">
-                    <h1>KALKI</h1>
+                    <h1>VASTRAA</h1>
                     <p>FASHION</p>
                 </a>
             </div>
@@ -46,6 +50,42 @@
                 <% } %>
 
             </div>
+
+        </div>
+
+    </div>
+
+    <!-- MOBILE SLIDE-IN MENU -->
+
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <div class="mobile-drawer" id="mobileDrawer">
+
+        <div class="mobile-drawer-head">
+            <h3>Menu</h3>
+            <button id="mobileCloseBtn" aria-label="Close menu">✕</button>
+        </div>
+
+        <div class="mobile-search">
+            <input type="text" placeholder="Search sarees, kurtas...">
+            <button>🔍</button>
+        </div>
+
+        <div class="mobile-links">
+
+            <a href="/product/home">Home</a>
+
+            <% categories.forEach(function(cat){ %>
+                <a href="/product/category/<%= cat._id %>"><%= cat.name %></a>
+            <% }) %>
+
+            <a href="/product/cart">Cart<% if(typeof cartCount !== 'undefined' && cartCount > 0){ %> (<%= cartCount %>)<% } %></a>
+
+            <% if(typeof user !== 'undefined' && user){ %>
+                <a href="/user/logout">Logout</a>
+            <% } else { %>
+                <a href="/user/login">Login</a>
+            <% } %>
 
         </div>
 

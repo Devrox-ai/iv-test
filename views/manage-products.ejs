@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Products — Admin</title>
+
+    <link rel="stylesheet" href="/css/theme.css">
+
+    <style>
+
+        .manage-wrap{
+            width: 92%;
+            max-width: 1200px;
+            margin: 50px auto 100px;
+        }
+
+        .manage-head{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .manage-back{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--wine);
+        }
+
+        .manage-head h1{
+            font-size: 34px;
+            color: var(--wine-deep);
+            font-weight: 500;
+        }
+
+        .manage-actions{ display: flex; gap: 10px; }
+
+        .manage-actions a{
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid var(--wine);
+            color: var(--wine);
+        }
+
+        .manage-actions a.solid{ background: var(--wine); color: white; }
+
+        .admin-alert{
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            background: #e7f6ec;
+            color: #206b3a;
+            border: 1px solid #b9e4c6;
+        }
+
+        .manage-grid{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .manage-card{
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(60,20,40,0.08);
+        }
+
+        .manage-card .m-img{
+            width: 100%;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .manage-card .m-img img{ width: 100%; height: 100%; object-fit: cover; }
+
+        .manage-card .m-body{ padding: 14px 16px 18px; }
+
+        .manage-card h4{ font-size: 16px; color: var(--ink); margin-bottom: 4px; }
+
+        .manage-card .m-cat{
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 12px;
+        }
+
+        .manage-card form{ margin: 0; }
+
+        .empty-state{ text-align: center; padding: 70px 20px; color: #8a7a86; font-size: 16px; }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="manage-wrap">
+
+        <a href="/product/home" class="manage-back">← Back To Store</a>
+
+        <div class="manage-head" style="margin-top: 18px;">
+            <h1>Manage Products</h1>
+            <div class="manage-actions">
+                <a href="/product/manage-categories">Manage Categories</a>
+                <a href="/product/product-form" class="solid">+ Add Product</a>
+            </div>
+        </div>
+
+        <% if(typeof deleted !== 'undefined' && deleted){ %>
+            <div class="admin-alert">Product deleted successfully.</div>
+        <% } %>
+
+        <% if(products.length > 0){ %>
+
+            <div class="manage-grid">
+
+                <% products.forEach(function(product){ %>
+
+                    <div class="manage-card">
+
+                        <div class="m-img">
+                            <img src="/images/<%= product.image %>" alt="<%= product.title %>"
+                                onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
+                        </div>
+
+                        <div class="m-body">
+                            <h4><%= product.title %></h4>
+                            <div class="m-cat"><%= categoryMap[product.categoryId] || 'Uncategorized' %></div>
+
+                            <form action="/product/delete/<%= product._id %>" method="POST"
+                                onsubmit="return confirm('Delete this product?');">
+                                <button type="submit" class="remove-btn">Delete</button>
+                            </form>
+                        </div>
+
+                    </div>
+
+                <% }) %>
+
+            </div>
+
+        <% } else { %>
+
+            <div class="empty-state">No products yet.</div>
+
+        <% } %>
+
+    </div>
+
+    <script src="/js/theme.js"></script>
+
+</body>
+
+</html>

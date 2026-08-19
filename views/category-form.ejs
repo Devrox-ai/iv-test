@@ -4,50 +4,272 @@
 <head>
 
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Category Form</title>
+    <title>Add Category — Admin</title>
 
-    <link rel="stylesheet" href="/Stayle.css">
+    <link rel="stylesheet" href="/css/theme.css">
+
+    <style>
+
+        .admin-wrap{
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 16px;
+            background: linear-gradient(160deg, var(--ivory) 0%, #f3e6d8 100%);
+        }
+
+        .admin-card{
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            border-radius: 14px;
+            padding: 40px 34px;
+            box-shadow: 0 20px 60px rgba(60,20,40,0.12);
+            border-top: 4px solid var(--gold);
+        }
+
+        .admin-back{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--wine);
+            margin-bottom: 22px;
+        }
+
+        .admin-eyebrow{
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .admin-card h1{
+            font-size: 34px;
+            color: var(--wine-deep);
+            margin-top: 6px;
+            margin-bottom: 26px;
+            font-weight: 500;
+        }
+
+        .admin-alert{
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .admin-alert.success{ background: #e7f6ec; color: #206b3a; border: 1px solid #b9e4c6; }
+        .admin-alert.error{ background: #fbe9e9; color: #a33; border: 1px solid #f3c4c4; }
+
+        .field{ margin-bottom: 20px; }
+
+        .field label{
+            display: block;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #6b5a65;
+            margin-bottom: 8px;
+        }
+
+        .field input[type="text"]{
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: "Jost", sans-serif;
+            background: var(--ivory);
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .field input[type="text"]:focus{ border-color: var(--gold); background: white; }
+
+        .upload-box{
+            border: 2px dashed var(--line);
+            border-radius: 10px;
+            padding: 22px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+            background: var(--ivory);
+        }
+
+        .upload-box:hover,
+        .upload-box.drag{ border-color: var(--gold); background: #fbf2e2; }
+
+        .upload-box input[type="file"]{
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-box .u-icon{ font-size: 26px; margin-bottom: 8px; }
+
+        .upload-box .u-text{ font-size: 13px; color: #6b5a65; }
+
+        .upload-box .u-text span{ color: var(--wine); font-weight: 500; }
+
+        .preview-wrap{ margin-top: 14px; display: none; }
+
+        .preview-wrap.show{ display: block; }
+
+        .preview-wrap img{
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+        }
+
+        .submit-btn{
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 30px;
+            background: var(--wine);
+            color: white;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.25s;
+            font-family: "Jost", sans-serif;
+        }
+
+        .submit-btn:hover{ background: var(--wine-deep); }
+
+        @media(max-width: 480px){
+            .admin-card{ padding: 30px 22px; }
+            .admin-card h1{ font-size: 27px; }
+        }
+
+    </style>
 
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="admin-wrap">
 
-        <h1>Add Category</h1>
+        <div class="admin-card">
 
-        <form
-            action="/product/category/add"
-            method="POST"
-            class="add-form"
-        >
+            <a href="/product/home" class="admin-back">← Back To Store</a>
+            <a href="/product/manage-categories" class="admin-back" style="float:right;">Manage Categories →</a>
+            <div style="clear:both;"></div>
 
-            <!-- CATEGORY NAME -->
+            <span class="admin-eyebrow">Admin Panel</span>
+            <h1>Add Category</h1>
 
-            <input
-                type="text"
-                name="name"
-                placeholder="Enter Category Name"
-                required
+            <% if(typeof error !== 'undefined' && error){ %>
+                <div class="admin-alert error"><%= error %></div>
+            <% } %>
+
+            <% if(typeof added !== 'undefined' && added){ %>
+                <div class="admin-alert success">Category added successfully.</div>
+            <% } %>
+
+            <form
+                action="/product/category/add"
+                method="POST"
+                enctype="multipart/form-data"
             >
 
-            <!-- IMAGE URL -->
+                <!-- CATEGORY NAME -->
 
-            <input type="text" name="image" placeholder="Enter Image Name">
+                <div class="field">
+                    <label>Category Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="e.g. Sarees"
+                        required
+                    >
+                </div>
 
-            <button
-                type="submit"
-                class="add-btn"
-            >
-                Add Category
-            </button>
+                <!-- IMAGE UPLOAD -->
 
-        </form>
+                <div class="field">
+                    <label>Category Image</label>
+
+                    <div class="upload-box" id="uploadBox">
+                        <input type="file" name="image" id="imageInput" accept="image/*">
+                        <div class="u-icon">📷</div>
+                        <div class="u-text"><span>Click to upload</span> or drag an image here</div>
+                    </div>
+
+                    <div class="preview-wrap" id="previewWrap">
+                        <img id="previewImg" src="" alt="Preview">
+                    </div>
+
+                </div>
+
+                <button type="submit" class="submit-btn">Add Category</button>
+
+            </form>
+
+        </div>
 
     </div>
+
+    <script>
+        const imageInput = document.getElementById("imageInput");
+        const uploadBox = document.getElementById("uploadBox");
+        const previewWrap = document.getElementById("previewWrap");
+        const previewImg = document.getElementById("previewImg");
+
+        imageInput.addEventListener("change", function () {
+
+            const file = this.files && this.files[0];
+
+            if (!file) {
+                previewWrap.classList.remove("show");
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = e => {
+                previewImg.src = e.target.result;
+                previewWrap.classList.add("show");
+            };
+
+            reader.readAsDataURL(file);
+
+        });
+
+        ["dragenter", "dragover"].forEach(evt => {
+            uploadBox.addEventListener(evt, e => {
+                e.preventDefault();
+                uploadBox.classList.add("drag");
+            });
+        });
+
+        ["dragleave", "drop"].forEach(evt => {
+            uploadBox.addEventListener(evt, e => {
+                e.preventDefault();
+                uploadBox.classList.remove("drag");
+            });
+        });
+
+        uploadBox.addEventListener("drop", e => {
+            const file = e.dataTransfer.files && e.dataTransfer.files[0];
+            if (file) {
+                imageInput.files = e.dataTransfer.files;
+                imageInput.dispatchEvent(new Event("change"));
+            }
+        });
+    </script>
 
 </body>
 

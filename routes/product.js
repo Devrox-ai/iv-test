@@ -1,303 +1,315 @@
 const express = require("express");
 const { ObjectId } = require("mongodb");
 const { getDB } = require("../config/db");
+const upload = require("../middleware/upload");
+
 const router = express.Router();
 
 
-function requireLogin(req, res, next) {
-
-    if (!req.session.user) {
-
-        const backPage = req.get("Referer") || "/product/home";
-
-        const separator = backPage.includes("?") ? "&" : "?";
-
-        return res.redirect(backPage + separator + "loginRequired=1");
-
-    }
-
-    next();
-
-}
-
-
-async function getNavData(db, req) {
-
-    const categoryCollection = db.collection("categories");
-    const productCollection = db.collection("products");
-
-    const categories = await categoryCollection.find({}).toArray();
-    const products = await productCollection.find({}).toArray();
-
-    let cartCount = 0;
-
-    if (req.session.user) {
-
-        const cartCollection = db.collection("cart");
-
-        cartCount = await cartCollection.countDocuments({
-
-            userId: req.session.user._id
-
-        });
-
-    }
-
-    return {
-
-        categories: categories,
-
-        products: products,
-
-        user: req.session.user,
-
-        cartCount: cartCount
-
-    };
-
-}
-
-router.get("/", async (req, res) => {
-
-    const db = getDB();
-
-    const collection = db.collection("products");
-
-    const data = await collection.find({}).toArray();
-
-    res.render("index", {
-
-        todos: data
-
-    });
-
-});
+// =========================
+// PRODUCT HOME
+// =========================
 
 router.get("/home", async (req, res) => {
 
     const db = getDB();
 
-    const nav = await getNavData(db, req);
+    const products = await db
+        .collection("products")
+        .find({})
+        .toArray();
 
-    res.render("home", nav);
+    const categories = await db
+        .collection("categories")
+        .find({})
+        .toArray();
+
+    res.render("home", {
+        products,
+        categories
+    });
 
 });
+
+
+// =========================
+// CATEGORY FORM
+// =========================
 
 router.get("/category-form", (req, res) => {
 
-    res.render("category-form");
+    res.render("category-form", {
+        error: req.query.error || null,
+        added: req.query.added || null
+    });
 
 });
 
-router.post("/category/add", async (req, res) => {
 
-    const db = getDB();
+// =========================
+// ADD CATEGORY
+// =========================
 
-    const collection = db.collection("categories");
+router.post("/category/add", (req, res) => {
 
-    await collection.insertOne({
+    upload.single("image")(req, res, async function (err) {
 
-        name: req.body.name,
+        if (err) {
 
-        image: req.body.image
+            return res.redirect(
+                "/product/category-form?error=" +
+                encodeURIComponent(err.message)
+            );
+
+        }
+
+        try {
+
+            const db = getDB();
+
+            await db.collection("categories").insertOne({
+
+                name: req.body.name,
+
+                image: req.file
+                    ? `uploads/${req.file.filename}`
+                    : ""
+
+            });
+
+            res.redirect("/product/category-form?added=1");
+
+        } catch (error) {
+
+            console.log(error);
+
+            res.redirect(
+                "/product/category-form?error=" +
+                encodeURIComponent("Category add nahi hui")
+            );
+
+        }
 
     });
 
-    res.redirect("/product/category-form");
-
 });
+
+
+// =========================
+// PRODUCT FORM
+// =========================
 
 router.get("/product-form", async (req, res) => {
 
-    const db = getDB();
+    try {
 
-    const collection = db.collection("categories");
+        const db = getDB();
 
-    const data = await collection.find({}).toArray();
+        const categories = await db
+            .collection("categories")
+            .find({})
+            .toArray();
 
-    res.render("product-form", {
+        res.render("product-form", {
 
-        categories: data
+            categories,
 
-    });
+            error: req.query.error || null,
 
-});
+            added: req.query.added || null
 
-router.post("/add", async (req, res) => {
+        });
 
-    const db = getDB();
+    } catch (error) {
 
-    const collection =
-    db.collection("products");
+        console.log(error);
 
-    await collection.insertOne({
+        res.render("product-form", {
 
-        title: req.body.title,
+            categories: [],
 
-        image: req.body.image,
+            error: "Categories load nahi hui",
 
-        categoryId: req.body.categoryId
+            added: null
 
-    });
-
-    res.redirect("/product/product-form");
-
-});
-
-
-
-router.get("/category/:id", async (req, res) => {
-
-    const db = getDB();
-
-    const categoryCollection = db.collection("categories");
-
-    // CATEGORY FIND
-    const category = await categoryCollection.findOne({
-
-        _id: new ObjectId(req.params.id)
-
-    });
-
-    if (!category) {
-
-        return res.redirect("/product/home");
+        });
 
     }
 
-    const nav = await getNavData(db, req);
-
-    // PRODUCTS FILTERED FOR THIS CATEGORY
-    const categoryProducts = nav.products.filter(
-
-        p => p.categoryId == req.params.id
-
-    );
-
-    res.render("category-product", Object.assign({}, nav, {
-
-        products: categoryProducts,
-
-        categoryName: category.name,
-
-        activeCategoryId: req.params.id
-
-    }));
-
 });
 
 
-router.get("/cart", requireLogin, async (req, res) => {
+// =========================
+// ADD PRODUCT
+// =========================
 
-    const db = getDB();
+router.post("/add", (req, res) => {
 
-    const nav = await getNavData(db, req);
+    upload.single("image")(req, res, async function (err) {
 
-    const cartCollection = db.collection("cart");
+        if (err) {
 
-    const cartItems = await cartCollection.find({
+            return res.redirect(
+                "/product/product-form?error=" +
+                encodeURIComponent(err.message)
+            );
 
-        userId: req.session.user._id
+        }
 
-    }).toArray();
+        try {
 
-    res.render("cart", Object.assign({}, nav, {
+            const db = getDB();
 
-        products: cartItems
+            await db.collection("products").insertOne({
 
-    }));
+                title: req.body.title,
 
-});
+                categoryId: req.body.categoryId,
 
-router.post("/cart/add/:id", requireLogin, async (req, res) => {
+                image: req.file
+                    ? `uploads/${req.file.filename}`
+                    : ""
 
-    const db = getDB();
+            });
 
-    const productCollection =
-    db.collection("products");
+            res.redirect("/product/product-form?added=1");
 
-    const cartCollection =
-    db.collection("cart");
+        } catch (error) {
 
-    const product =
-    await productCollection.findOne({
+            console.log(error);
 
-        _id: new ObjectId(req.params.id)
+            res.redirect(
+                "/product/product-form?error=" +
+                encodeURIComponent("Product add nahi hua")
+            );
+
+        }
 
     });
 
-    await cartCollection.insertOne({
-
-    title: product.title,
-
-    image: product.image,
-
-    categoryId: product.categoryId,
-
-    userId: req.session.user._id
-
-});
-
-    res.redirect("/product/cart");
-
 });
 
 
-// REMOVE PRODUCT FROM CART
-router.post("/cart/delete/:id", requireLogin, async (req, res) => {
+// =========================
+// MANAGE PRODUCTS
+// =========================
+
+router.get("/manage", async (req, res) => {
 
     const db = getDB();
 
-    const cartCollection =
-    db.collection("cart");
+    const products = await db
+        .collection("products")
+        .find({})
+        .toArray();
 
-    await cartCollection.deleteOne({
+    const categories = await db
+        .collection("categories")
+        .find({})
+        .toArray();
 
-        _id: new ObjectId(req.params.id),
+    const categoryMap = {};
 
-        userId: req.session.user._id
+    categories.forEach(category => {
+
+        categoryMap[category._id.toString()] =
+            category.name;
 
     });
 
-    res.redirect("/product/cart");
+    res.render("manage-products", {
+
+        products,
+
+        categoryMap,
+
+        deleted: req.query.deleted || null
+
+    });
 
 });
 
 
+// =========================
+// DELETE PRODUCT
+// =========================
 
-// router.post("/add", async (req, res) => {
+router.post("/delete/:id", async (req, res) => {
 
-//     const db = getDB();
+    try {
 
-//     const collection = db.collection("products");
+        const db = getDB();
 
-//     await collection.insertOne({
+        await db.collection("products").deleteOne({
 
-//         title: req.body.title,
-//         completed: false
+            _id: new ObjectId(req.params.id)
 
-//     });
+        });
 
-//     res.redirect("/product");
+        res.redirect("/product/manage?deleted=1");
 
-// });
+    } catch (error) {
+
+        console.log(error);
+
+        res.redirect("/product/manage");
+
+    }
+
+});
 
 
-// router.post("/delete/:id", async (req, res) => {
+// =========================
+// MANAGE CATEGORIES
+// =========================
 
-//     const db = getDB();
+router.get("/manage-categories", async (req, res) => {
 
-//     const collection = db.collection("products");
+    const db = getDB();
 
-//     await collection.deleteOne({
+    const categories = await db
+        .collection("categories")
+        .find({})
+        .toArray();
 
-//         _id: new ObjectId(req.params.id)
+    res.render("manage-categories", {
 
-//     });
+        categories,
 
-//     res.redirect("/product");
+        deleted: req.query.deleted || null
 
-// });
+    });
+
+});
+
+
+// =========================
+// DELETE CATEGORY
+// =========================
+
+router.post("/category/delete/:id", async (req, res) => {
+
+    try {
+
+        const db = getDB();
+
+        await db.collection("categories").deleteOne({
+
+            _id: new ObjectId(req.params.id)
+
+        });
+
+        res.redirect("/product/manage-categories?deleted=1");
+
+    } catch (error) {
+
+        console.log(error);
+
+        res.redirect("/product/manage-categories");
+
+    }
+
+});
 
 
 module.exports = router;

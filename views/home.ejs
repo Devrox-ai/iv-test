@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KALKI — Threads Woven With Tradition</title>
+<title>Vastraa — Threads Woven With Tradition</title>
 
 <link rel="stylesheet" href="/css/theme.css">
 
 <style>
-
-    .hero{
+    .hero {
         width: 92%;
         max-width: 1400px;
         margin: 60px auto;
@@ -19,27 +18,27 @@
         align-items: center;
     }
 
-    .hero-copy .eyebrow{
+    .hero-copy .eyebrow {
         display: inline-block;
         font-size: 12px;
         letter-spacing: 4px;
         text-transform: uppercase;
-        color: var(--gold);
-        border-bottom: 1px solid var(--gold);
+        color: var(--gold, #C7962F);
+        border-bottom: 1px solid var(--gold, #C7962F);
         padding-bottom: 6px;
         margin-bottom: 22px;
     }
 
-    .hero-copy h1{
+    .hero-copy h1 {
         font-size: 68px;
         line-height: 1.05;
         font-weight: 500;
-        color: var(--wine-deep);
+        color: var(--wine-deep, #3E0F22);
     }
 
-    .hero-copy h1 em{ font-style: italic; color: var(--wine); }
+    .hero-copy h1 em { font-style: italic; color: var(--wine, #5C1A33); }
 
-    .hero-copy p{
+    .hero-copy p {
         margin-top: 22px;
         font-size: 16px;
         line-height: 1.7;
@@ -47,10 +46,10 @@
         max-width: 480px;
     }
 
-    .hero-btn{
+    .hero-btn {
         display: inline-block;
         margin-top: 32px;
-        background: var(--wine);
+        background: var(--wine, #5C1A33);
         color: white;
         text-decoration: none;
         padding: 15px 34px;
@@ -61,9 +60,9 @@
         transition: 0.3s;
     }
 
-    .hero-btn:hover{ background: var(--wine-deep); transform: translateY(-2px); }
+    .hero-btn:hover { background: var(--wine-deep, #3E0F22); transform: translateY(-2px); }
 
-    .hero-motif{
+    .hero-motif {
         position: relative;
         aspect-ratio: 1/1;
         display: flex;
@@ -71,16 +70,83 @@
         justify-content: center;
     }
 
-    .hero-motif svg{ width: 100%; height: 100%; }
+    .hero-motif svg { width: 100%; height: 100%; }
 
-    @media(max-width: 900px){
-        .hero{ grid-template-columns: 1fr; }
-        .hero-motif{ max-width: 260px; margin: auto; }
-        .hero-copy h1{ font-size: 46px; }
+    /* Layout & Section Styles */
+    .section { width: 92%; max-width: 1400px; margin: 80px auto; }
+    .section-head { text-align: center; margin-bottom: 40px; }
+    .section-head h2 { font-size: 36px; color: var(--wine-deep, #3E0F22); margin-top: 8px; }
+    .section-head .rule { width: 60px; height: 2px; background: var(--gold, #C7962F); margin: 15px auto 0; }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 30px;
     }
 
-</style>
+    .p-card {
+        background: #fff;
+        border: 1px solid #f0e6eb;
+        border-radius: 4px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .p-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+    .p-card .tag {
+        position: absolute; top: 12px; left: 12px;
+        background: var(--gold, #C7962F); color: #fff;
+        font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+        padding: 4px 8px; z-index: 2; border-radius: 2px;
+    }
+    .p-img { width: 100%; aspect-ratio: 3/4; overflow: hidden; background: #f9f9f9; }
+    .p-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+    .p-card:hover .p-img img { transform: scale(1.05); }
+    .p-body { padding: 20px; text-align: center; }
+    .p-body h4 { font-size: 18px; color: var(--wine-deep, #3E0F22); margin-bottom: 6px; }
+    .p-meta { font-size: 12px; color: #888; margin-bottom: 10px; }
 
+    .cart-btn {
+        width: 100%; border: none; background: var(--wine, #5C1A33);
+        color: white; padding: 12px; font-size: 12px; letter-spacing: 1px;
+        text-transform: uppercase; cursor: pointer; transition: 0.3s; border-radius: 2px;
+    }
+    .cart-btn:hover { background: var(--wine-deep, #3E0F22); }
+
+    .category-box { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+    .cat-card { text-decoration: none; text-align: center; color: inherit; }
+    .cat-img { width: 100%; aspect-ratio: 1/1; border-radius: 50%; overflow: hidden; margin-bottom: 12px; border: 2px solid var(--gold, #C7962F); }
+    .cat-img img { width: 100%; height: 100%; object-fit: cover; }
+    .cat-card h3 { font-size: 16px; font-weight: 500; color: var(--wine-deep, #3E0F22); }
+
+    .craft-section { background: #faf6f8; padding: 80px 0; margin-top: 80px; }
+    .craft-inner { width: 92%; max-width: 1400px; margin: 0 auto; }
+    .craft-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; margin-top: 40px; }
+    .craft-step { text-align: center; padding: 20px; }
+    .craft-step .num { font-size: 32px; font-weight: 700; color: var(--gold, #C7962F); margin-bottom: 10px; }
+    .craft-step h4 { font-size: 18px; margin-bottom: 8px; color: var(--wine-deep, #3E0F22); }
+    .craft-step p { font-size: 14px; color: #666; line-height: 1.6; }
+
+    .trust-strip {
+        width: 92%; max-width: 1400px; margin: 60px auto;
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px; padding: 30px 0; border-top: 1px solid #f0e6eb; border-bottom: 1px solid #f0e6eb;
+    }
+    .trust-item { display: flex; align-items: center; gap: 15px; }
+    .trust-item .t-icon { font-size: 28px; }
+    .trust-item h5 { font-size: 14px; margin-bottom: 2px; color: var(--wine-deep, #3E0F22); }
+    .trust-item p { font-size: 12px; color: #777; margin: 0; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: #777; background: #fafafa; border-radius: 4px; }
+    .empty-state .e-icon { font-size: 40px; margin-bottom: 10px; }
+
+    @media(max-width: 900px){
+        .hero { grid-template-columns: 1fr; text-align: center; }
+        .hero-copy p { margin: 22px auto 0; }
+        .hero-motif { max-width: 260px; margin: auto; }
+        .hero-copy h1 { font-size: 46px; }
+    }
+</style>
 </head>
 
 <body>
@@ -88,26 +154,18 @@
     <%- include('partials/navbar') %>
 
     <!-- HERO -->
-
     <div class="hero">
-
         <div class="hero-copy">
-
             <span class="eyebrow">Festive Edit 2026</span>
-
             <h1>Threads Woven<br>With <em>Tradition</em></h1>
-
             <p>
                 Discover handpicked kurtas, sarees and bridal wear crafted by
                 master artisans — where timeless Indian craft meets modern silhouettes.
             </p>
-
             <a href="#trending" class="hero-btn">Explore The Collection</a>
-
         </div>
 
         <div class="hero-motif">
-
             <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="200" cy="200" r="188" stroke="#C7962F" stroke-width="1.5"/>
                 <circle cx="200" cy="200" r="150" stroke="#5C1A33" stroke-width="1"/>
@@ -120,114 +178,82 @@
                     <path d="M80 200a120 120 0 0 1 240 0" stroke="#C7962F" stroke-width="1" stroke-dasharray="2 8"/>
                 </g>
             </svg>
-
         </div>
-
     </div>
 
     <!-- TRENDING PRODUCTS -->
-
     <div class="section" id="trending">
-
         <div class="section-head">
             <span class="eyebrow">Curated For You</span>
             <h2>Best Sellers</h2>
             <div class="rule"></div>
         </div>
 
-        <% if(products.length > 0){ %>
-
+        <% if (typeof products !== 'undefined' && products.length > 0) { %>
             <div class="product-grid">
-
                 <% products.slice(0, 8).forEach(function(product, i){ %>
-
                     <div class="p-card">
-
-                        <% if(i < 3){ %>
+                        <% if (i < 3) { %>
                             <span class="tag">Best Seller</span>
                         <% } %>
 
                         <div class="p-img">
-                            <img src="/images/<%= product.image %>" alt="<%= product.title %>"
-                                onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
+                            <img src="<%= product.image && (product.image.startsWith('/') || product.image.startsWith('http')) ? product.image : '/images/' + product.image %>" 
+                                 alt="<%= product.title %>"
+                                 onerror="imgFallback(this, '<%= product.title ? product.title.replace(/'/g, '') : '' %>')">
                         </div>
 
                         <div class="p-body">
-
                             <h4><%= product.title %></h4>
                             <div class="p-meta">Premium Handcrafted</div>
 
                             <form action="/product/cart/add/<%= product._id %>" method="POST">
                                 <button type="submit" class="cart-btn">Add To Cart</button>
                             </form>
-
                         </div>
-
                     </div>
-
                 <% }) %>
-
             </div>
-
         <% } else { %>
-
             <div class="empty-state">
                 <div class="e-icon">🧵</div>
                 No products added yet — visit the admin panel to add your first product.
             </div>
-
         <% } %>
-
     </div>
 
     <!-- CATEGORY SHOWCASE -->
-
     <div class="section">
-
         <div class="section-head">
             <span class="eyebrow">Shop By Category</span>
             <h2>Explore Collections</h2>
             <div class="rule"></div>
         </div>
 
-        <% if(categories.length > 0){ %>
-
+        <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
             <div class="category-box">
-
                 <% categories.forEach(function(category){ %>
-
                     <a href="/product/category/<%= category._id %>" class="cat-card">
-
                         <div class="cat-img">
-                            <img src="/images/<%= category.image %>" alt="<%= category.name %>"
-                                onerror="imgFallback(this, '<%= category.name.replace(/'/g, '') %>')">
+                            <img src="<%= category.image && (category.image.startsWith('/') || category.image.startsWith('http')) ? category.image : '/images/' + category.image %>" 
+                                 alt="<%= category.name %>"
+                                 onerror="imgFallback(this, '<%= category.name ? category.name.replace(/'/g, '') : '' %>')">
                         </div>
-
                         <h3><%= category.name %></h3>
-
                     </a>
-
                 <% }) %>
-
             </div>
-
         <% } else { %>
-
             <div class="empty-state">
                 <div class="e-icon">📁</div>
                 No categories added yet.
             </div>
-
         <% } %>
-
     </div>
 
-    <!-- BEHIND THE WEAVE (BTS / CRAFT PROCESS) -->
-
+    <!-- BEHIND THE WEAVE -->
     <div class="craft-section">
-
         <div class="craft-inner">
-
             <div class="section-head">
                 <span class="eyebrow">Behind The Weave</span>
                 <h2>From Loom To Your Wardrobe</h2>
@@ -235,41 +261,32 @@
             </div>
 
             <div class="craft-steps">
-
                 <div class="craft-step">
                     <div class="num">01</div>
                     <h4>Handpicked Fabric</h4>
                     <p>Every yard of silk, cotton and georgette is sourced directly from trusted regional weavers.</p>
                 </div>
-
                 <div class="craft-step">
                     <div class="num">02</div>
                     <h4>Artisan Embroidery</h4>
                     <p>Skilled karigars hand-embellish each piece with zari, resham and mirror work.</p>
                 </div>
-
                 <div class="craft-step">
                     <div class="num">03</div>
                     <h4>Quality Check</h4>
                     <p>Every garment passes a strict finish and stitching inspection before it's packed.</p>
                 </div>
-
                 <div class="craft-step">
                     <div class="num">04</div>
                     <h4>Delivered To You</h4>
                     <p>Carefully wrapped and shipped across India with real-time order tracking.</p>
                 </div>
-
             </div>
-
         </div>
-
     </div>
 
     <!-- TRUST STRIP -->
-
     <div class="trust-strip">
-
         <div class="trust-item">
             <span class="t-icon">🚚</span>
             <div>
@@ -277,7 +294,6 @@
                 <p>On all prepaid orders above ₹2999</p>
             </div>
         </div>
-
         <div class="trust-item">
             <span class="t-icon">↩️</span>
             <div>
@@ -285,7 +301,6 @@
                 <p>7-day hassle free return policy</p>
             </div>
         </div>
-
         <div class="trust-item">
             <span class="t-icon">🔒</span>
             <div>
@@ -293,7 +308,6 @@
                 <p>100% safe & encrypted checkout</p>
             </div>
         </div>
-
         <div class="trust-item">
             <span class="t-icon">🧵</span>
             <div>
@@ -301,12 +315,17 @@
                 <p>Supporting genuine handloom craft</p>
             </div>
         </div>
-
     </div>
 
     <%- include('partials/footer') %>
-
     <%- include('partials/login-toast') %>
 
+    <!-- Helper JavaScript for Fallback Image -->
+    <script>
+        function imgFallback(imgElement, altText) {
+            imgElement.onerror = null;
+            imgElement.src = 'https://via.placeholder.com/300x400?text=' + encodeURIComponent(altText || 'Image');
+        }
+    </script>
 </body>
 </html>
