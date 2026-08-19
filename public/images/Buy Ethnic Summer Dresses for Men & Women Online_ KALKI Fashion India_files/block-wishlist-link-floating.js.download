@@ -1,0 +1,19 @@
+const main = async () => {
+  const { default: loader, appSettings } = await import(window.WishlistKingAppLoaderURL);
+
+  loader.load({
+    type: 'lit-component',
+    name: 'wishlist-link-floating',
+    url: appSettings.assets.componentWishlistLinkFloatingJs,
+    dependencies: [
+      {
+        url: appSettings.assets.componentWishlistLinkFloatingCss,
+        order: 5,
+      },
+    ],
+  });
+};
+
+if (window.WishlistKingAppLoaderURL) {
+  main();
+}

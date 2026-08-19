@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Add Product</title>
+
+    <style>
+
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body{
+
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 40px;
+
+        }
+
+        .container{
+
+            max-width: 600px;
+            margin: auto;
+
+            background: white;
+
+            padding: 30px;
+
+            border-radius: 10px;
+
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+
+        }
+
+        h1{
+
+            text-align: center;
+            margin-bottom: 30px;
+
+        }
+
+        .add-form{
+
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+        }
+
+        input,
+        select{
+
+            padding: 12px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 5px;
+
+            font-size: 16px;
+
+        }
+
+        button{
+
+            padding: 12px;
+
+            border: none;
+
+            background: #007bff;
+
+            color: white;
+
+            font-size: 16px;
+
+            border-radius: 5px;
+
+            cursor: pointer;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Add Product</h1>
+
+        <form
+            action="/product/add"
+            method="POST"
+            class="add-form"
+        >
+
+            <!-- PRODUCT NAME -->
+
+            <input
+                type="text"
+                name="title"
+                placeholder="Enter Product Name"
+                required
+            >
+
+            <!-- IMAGE NAME -->
+
+            <input
+                type="text"
+                name="image"
+                placeholder="Enter Image Name"
+                required
+            >
+
+            <!-- CATEGORY -->
+
+            <select
+                name="categoryId"
+                required
+            >
+
+                <option value="">
+                    Select Category
+                </option>
+
+                <% categories.forEach(category => { %>
+
+                    <option value="<%= category._id %>">
+
+                        <%= category.name %>
+
+                    </option>
+
+                <% }) %>
+
+            </select>
+
+            <button type="submit">
+
+                Add Product
+
+            </button>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Shop Todo App</title>
+
+    <link rel="stylesheet" href="/Stayle.css">
+
+    <!-- ICONS -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            Shop<span>Zone</span>
+        </div>
+
+        <ul class="nav-links">
+
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Products</a></li>
+            <li><a href="#">Offers</a></li>
+            <li><a href="#">Contact</a></li>
+
+        </ul>
+
+        <div class="nav-icons">
+
+            <i class="fa-solid fa-cart-shopping"></i>
+            <i class="fa-solid fa-user"></i>
+
+        </div>
+
+    </nav>
+
+
+    <!-- HERO SECTION -->
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <h1>Big Sale Is Live</h1>
+
+            <p>
+                Buy amazing products with best price and fast delivery.
+            </p>
+
+            <button>Shop Now</button>
+
+        </div>
+
+    </section>
+
+
+    <!-- PRODUCTS -->
+
+    <div class="products">
+
+        <div class="card">
+
+            <img
+                src="https://images.unsplash.com/photo-1542291026-7eec264c27ff"
+                alt=""
+            >
+
+            <h3>Nike Shoes</h3>
+
+            <p>$120</p>
+
+            <button>Add To Cart</button>
+
+        </div>
+
+
+        <div class="card">
+
+            <img
+                src="https://images.unsplash.com/photo-1523275335684-37898b6baf30"
+                alt=""
+            >
+
+            <h3>Smart Watch</h3>
+
+            <p>$90</p>
+
+            <button>Add To Cart</button>
+
+        </div>
+
+
+        <div class="card">
+
+            <img
+                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e"
+                alt=""
+            >
+
+            <h3>Headphones</h3>
+
+            <p>$60</p>
+
+            <button>Add To Cart</button>
+
+        </div>
+
+    </div>
+
+
+    <!-- TODO APP -->
+
+    <div class="container">
+
+        <h1>Todo App</h1>
+
+        <form
+            action="/product/add"
+            method="POST"
+            class="add-form"
+        >
+
+            <input
+                type="text"
+                name="title"
+                placeholder="Enter Todo"
+                required
+            >
+
+            <button
+                type="submit"
+                class="add-btn"
+            >
+                Add
+            </button>
+
+        </form>
+
+
+        <% if(todos.length > 0){ %>
+
+            <ul>
+
+                <% todos.forEach(todo => { %>
+
+                    <li>
+
+                        <div>
+
+                            <strong>
+                                <%= todo.title %>
+                            </strong>
+
+                        </div>
+
+                        <div class="actions">
+
+                            <form
+                                action="/product/delete/<%= todo._id %>"
+                                method="POST"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="delete-btn"
+                                >
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </li>
+
+                <% }) %>
+
+            </ul>
+
+        <% } else { %>
+
+            <div class="empty">
+                No Todos Found
+            </div>
+
+        <% } %>
+
+    </div>
+
+</body>
+
+</html>

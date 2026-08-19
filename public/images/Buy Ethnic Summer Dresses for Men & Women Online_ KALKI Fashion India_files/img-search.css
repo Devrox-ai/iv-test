@@ -1,0 +1,243 @@
+.birse-img-upload-wrap {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: fit-content;
+}
+
+birse-img-upload-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 8px;
+  color: #000;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+birse-img-upload-button.input-bar {
+  position: absolute;
+  top: 2px;
+  bottom: -2px;
+  height: calc(100% - 4px);
+  right: 150px
+}
+
+birse-img-upload-button.float {
+  padding: 12px 16px;
+  background-color: var(--background-color, #fff);
+  position: fixed;
+  left: var(--float-left, auto);
+  right: var(--float-right, 0);
+  top: var(--margin-top, 60px);
+  border-radius: var(--float-border-radius, 8px 0 0 8px);
+  box-shadow: 0px 2px 8px 0px #0000004D;
+  height: fit-content;
+  width: fit-content;
+  z-index: 2147483647;
+}
+
+birse-img-upload-button svg {
+  width: var(--icon-size, 20px);
+  height: auto;
+  object-fit: contain;
+}
+
+birse-img-upload-button img {
+  object-fit: contain;
+}
+
+.birse-upload-input {
+  display: none !important;
+}
+
+birse-image-search-popover * {
+  margin: 0;
+}
+
+birse-image-search-popover .hidden {
+  display: none !important;
+}
+
+birse-image-search-popover {
+  position: fixed;
+  background-color: #F0F0F0;
+  color: #000;
+  /* top: 8px; */
+  z-index: 99999999999999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  width: 500px;
+  min-height: 400px;
+  max-width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 7px rgba(15, 21, 25, 0.2);
+}
+
+birse-image-search-popover h2 {
+  color: #24343f;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+birse-image-search-popover button[close-button] {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+birse-image-search-popover .dropzone {
+  border: 1px dashed #7B7B7B;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  flex: 1 1 0;
+  background-color: #fff;
+  padding: 16px;
+  text-align: center;
+  margin-top: 8px;
+}
+
+birse-image-search-popover input[type="file"] {
+  display: none;
+}
+
+birse-image-search-popover :is(.dropzone.upload, .dropzone.drophere) :not(button) {
+  color: #616161;
+}
+
+birse-image-search-popover .dropzone.error :not(button) {
+  color: #EA0D0D;
+}
+
+birse-image-search-popover .dropzone button {
+  background-color: transparent;
+  border: 1px solid #000;
+  padding: 10px 16px;
+  outline: none;
+  color: #292929;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+birse-image-search-popover .birse-hot-search-img-list {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+birse-image-search-popover .birse-hot-search-img-item {
+  aspect-ratio: 1 / 1;
+  position: relative;
+  border: 1px solid #D9D9D9;
+  border-radius: 8px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background-color: #fff;
+}
+
+birse-image-search-popover .birse-hot-search-img-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+birse-image-search-popover .birse-hot-search-img-container .birse-label {
+  color: #616161;
+  font-size: 12px;
+}
+
+birse-image-search-popover .birse-hot-search-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+}
+
+birse-image-search-popover .birse-hot-search-img-item .birse-hover-img-search {
+  display: none;
+  border-radius: 50%;
+  border: none;
+  outline: none;
+  margin: 0;
+  background-color: transparent;
+  position: absolute;
+  cursor: pointer;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0px 2px 4px 0px #00000026;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  padding: 0;
+}
+
+birse-image-search-popover .birse-hover-img-search:not(.loading-background):hover {
+  background-color: rgba(204, 204, 204, 0.7);
+}
+
+birse-image-search-popover .birse-hot-search-img-item:hover .birse-hover-img-search:not(.loading-background) {
+  display: grid;
+}
+
+birse-image-search-popover:not(.loading) .birse-hot-search-img-item:hover {
+  border-color: #7B7B7B;
+}
+
+birse-image-search-popover:not(.loading) .birse-hot-search-img-item:hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.13);
+}
+
+birse-image-search-popover.loading .loading-background {
+  display: block;
+  border-radius: 4px;
+  background: linear-gradient(100deg,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, .5) 50%,
+      rgba(255, 255, 255, 0) 60%) #ededed;
+  background-size: 200% 100%;
+  background-position-x: 180%;
+  animation: 1s birse-loading ease-in-out infinite;
+}
+
+birse-image-search-popover .birse-hot-search-img-container.hidden {
+  display: none !important;
+}
+
+.birse-icon-sm {
+  width: 20px;
+  height: 20px;
+}
+
+.birse-icon-md {
+  width: 22px;
+  height: 22px;
+}
+
+.birse-icon-lg {
+  width: 36px;
+  height: 36px;
+}
+
+.birse-icon-xl {
+  width: 80px;
+  height: 80px;
+}

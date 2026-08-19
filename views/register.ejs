@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body{
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg,#111827,#1e3a8a,#2563eb);
+        }
+
+        .register-box{
+            width: 400px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(12px);
+            padding: 40px;
+            border-radius: 22px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        .register-box h1{
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .register-box p{
+            color: #dbeafe;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-box{
+            margin-bottom: 20px;
+        }
+
+        .input-box input{
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            outline: none;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.12);
+            color: white;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .input-box input::placeholder{
+            color: #cbd5e1;
+        }
+
+        .input-box input:focus{
+            border: 1px solid #60a5fa;
+            background: rgba(255,255,255,0.18);
+        }
+
+        .register-btn{
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg,#60a5fa,#2563eb);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .register-btn:hover{
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37,99,235,0.4);
+        }
+
+        .bottom-text{
+            margin-top: 20px;
+            text-align: center;
+            color: #dbeafe;
+            font-size: 14px;
+        }
+
+        .bottom-text a{
+            color: #93c5fd;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="register-box">
+
+        <h1>Create Account</h1>
+
+        <p>Register and start your journey</p>
+
+        <form
+            action="/user/register"
+            method="POST"
+        >
+
+            <div class="input-box">
+
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Enter Name"
+                    required
+                >
+
+            </div>
+
+            <div class="input-box">
+
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Enter Password"
+                    required
+                >
+
+            </div>
+
+            <button
+                type="submit"
+                class="register-btn"
+            >
+
+                Register
+
+            </button>
+
+        </form>
+
+        <div class="bottom-text">
+
+            Already have an account?
+            <a href="/user/login">Login</a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

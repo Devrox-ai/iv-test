@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= categoryName %> — KALKI Fashion</title>
+
+<link rel="stylesheet" href="/css/theme.css">
+
+</head>
+
+<body>
+
+    <%- include('partials/navbar') %>
+
+    <!-- PAGE HEADER -->
+
+    <div class="page-header">
+
+        <span class="eyebrow">Curated Collection</span>
+
+        <h1><%= categoryName %></h1>
+
+        <p>Explore premium <%= categoryName.toLowerCase() %> pieces, handpicked for modern elegance.</p>
+
+        <div class="breadcrumb">
+            <a href="/product/home">Home</a> &nbsp;/&nbsp; <%= categoryName %>
+        </div>
+
+    </div>
+
+    <!-- PRODUCTS -->
+
+    <div class="section" style="margin-top: 20px;">
+
+        <% if(products.length > 0){ %>
+
+            <div class="product-grid">
+
+                <% products.forEach(function(product, i){ %>
+
+                    <div class="p-card">
+
+                        <% if(i < 2){ %>
+                            <span class="tag">New</span>
+                        <% } %>
+
+                        <div class="p-img">
+                            <img src="/images/<%= product.image %>" alt="<%= product.title %>"
+                                onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
+                        </div>
+
+                        <div class="p-body">
+
+                            <h4><%= product.title %></h4>
+                            <div class="p-meta">Premium Handcrafted</div>
+
+                            <form action="/product/cart/add/<%= product._id %>" method="POST">
+                                <button type="submit" class="cart-btn">Add To Cart</button>
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                <% }) %>
+
+            </div>
+
+        <% } else { %>
+
+            <div class="empty-state">
+                <div class="e-icon">😔</div>
+                No products found in this collection yet.
+            </div>
+
+        <% } %>
+
+    </div>
+
+    <!-- TRUST STRIP -->
+
+    <div class="trust-strip">
+
+        <div class="trust-item">
+            <span class="t-icon">🚚</span>
+            <div>
+                <h5>Free Shipping</h5>
+                <p>On all prepaid orders above ₹2999</p>
+            </div>
+        </div>
+
+        <div class="trust-item">
+            <span class="t-icon">↩️</span>
+            <div>
+                <h5>Easy Returns</h5>
+                <p>7-day hassle free return policy</p>
+            </div>
+        </div>
+
+        <div class="trust-item">
+            <span class="t-icon">🔒</span>
+            <div>
+                <h5>Secure Payments</h5>
+                <p>100% safe & encrypted checkout</p>
+            </div>
+        </div>
+
+        <div class="trust-item">
+            <span class="t-icon">🧵</span>
+            <div>
+                <h5>Certified Artisans</h5>
+                <p>Supporting genuine handloom craft</p>
+            </div>
+        </div>
+
+    </div>
+
+    <%- include('partials/footer') %>
+
+    <%- include('partials/login-toast') %>
+
+</body>
+</html>

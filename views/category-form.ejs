@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Category Form</title>
+
+    <link rel="stylesheet" href="/Stayle.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Add Category</h1>
+
+        <form
+            action="/product/category/add"
+            method="POST"
+            class="add-form"
+        >
+
+            <!-- CATEGORY NAME -->
+
+            <input
+                type="text"
+                name="name"
+                placeholder="Enter Category Name"
+                required
+            >
+
+            <!-- IMAGE URL -->
+
+            <input type="text" name="image" placeholder="Enter Image Name">
+
+            <button
+                type="submit"
+                class="add-btn"
+            >
+                Add Category
+            </button>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>

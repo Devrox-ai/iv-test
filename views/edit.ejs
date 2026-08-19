@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Todo</title>
+</head>
+<body>
+
+    <h1>Edit Todo</h1>
+
+    <form action="/update/<%= todo._id %>" method="POST">
+
+        <input
+            type="text"
+            name="title"
+            value="<%= todo.title %>"
+            required
+        >
+
+        <label>
+
+            <input
+                type="checkbox"
+                name="completed"
+
+                <%= todo.completed ? "checked" : "" %>
+            >
+
+            Completed
+
+        </label>
+
+        <button type="submit">
+            Update
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/home">
+        Go Back
+    </a>
+
+</body>
+</html>

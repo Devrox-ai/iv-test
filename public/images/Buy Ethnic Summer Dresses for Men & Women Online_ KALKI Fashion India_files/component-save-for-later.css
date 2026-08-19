@@ -1,0 +1,40 @@
+save-for-later {
+  --icon-size: 18px;
+  --icon-stroke: rgb(var(--wk-color-accent-1));
+  --icon-stroke-width: 1px;
+  --icon-fill: transparent;
+  --icon-offset-vertical: 0;
+  --button-background: none;
+  --button-border: none;
+  --button-color: rgb(var(--wk-color-outline-button-label));
+  --button-border-width: var(--wk-button-border-width);
+  --button-border-radius: var(--wk-button-border-radius);
+  --button-padding: 0;
+  --button-margin-top: 0px;
+  --button-margin-bottom: 0px;
+  --button-max-width: auto;
+}
+
+save-for-later .wk-button,
+save-for-later .wk-button:hover {
+  padding: var(--button-padding);
+  margin-top: var(--button-margin-top);
+  margin-bottom: var(--button-margin-bottom);
+  color: var(--button-color);
+  background: var(--button-background);
+  border: var(--button-border);
+  border-radius: var(--button-border-radius);
+  gap: 7px;
+  box-shadow: none;
+  max-width: var(--button-max-width);
+  font-size: calc(var(--wk-font-text-scale) * 100%);
+  font-family: inherit;
+}
+
+save-for-later .wk-button .wk-icon {
+  top: var(--icon-offset-vertical);
+}
+
+save-for-later .wk-floating {
+  z-index: 2;
+}

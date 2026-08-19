@@ -1,0 +1,108 @@
+    <!-- TOP BAR -->
+
+    <div class="top-bar">
+        Designer Quality Styles &nbsp;•&nbsp; Handcrafted Ethnic Wear &nbsp;•&nbsp; Free Shipping On Prepaid Orders
+    </div>
+
+    <!-- MAIN NAVBAR -->
+
+    <div class="navbar">
+
+        <div class="nav-container">
+
+            <div class="left-menu">
+                <% categories.forEach(function(cat){ %>
+                    <a href="/product/category/<%= cat._id %>"><%= cat.name %></a>
+                <% }) %>
+            </div>
+
+            <div class="logo">
+                <a href="/product/home">
+                    <h1>KALKI</h1>
+                    <p>FASHION</p>
+                </a>
+            </div>
+
+            <div class="right-menu">
+
+                <div class="search-box">
+                    <input type="text" placeholder="Search sarees, kurtas...">
+                    <button>🔍</button>
+                </div>
+
+                <span class="icon-link">♡</span>
+
+                <a href="/product/cart" class="icon-link">
+                    🛍️
+                    <% if(typeof cartCount !== 'undefined' && cartCount > 0){ %>
+                        <span class="cart-badge"><%= cartCount %></span>
+                    <% } %>
+                </a>
+
+                <% if(typeof user !== 'undefined' && user){ %>
+                    <a href="/user/logout" class="auth-link">Logout</a>
+                <% } else { %>
+                    <a href="/user/login" class="auth-link">Login</a>
+                <% } %>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- CATEGORY NAVBAR -->
+
+    <div class="category-navbar">
+
+        <div class="category-container">
+
+            <a href="#" class="highlight">Ready To Ship</a>
+
+            <% categories.forEach(function(category){ %>
+
+                <div class="dropdown">
+
+                    <a href="/product/category/<%= category._id %>"
+                        class="<%= (typeof activeCategoryId !== 'undefined' && activeCategoryId == category._id.toString()) ? 'active-link' : '' %>">
+                        <%= category.name %>
+                    </a>
+
+                    <div class="dropdown-content">
+
+                        <div class="dropdown-products">
+
+                            <% products.forEach(function(product){ %>
+
+                                <% if(product.categoryId == category._id.toString()) { %>
+
+                                    <div class="mini-card">
+
+                                        <div class="mini-img">
+                                            <img src="/images/<%= product.image %>" alt="<%= product.title %>"
+                                                onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
+                                        </div>
+
+                                        <p><%= product.title %></p>
+
+                                        <form action="/product/cart/add/<%= product._id %>" method="POST">
+                                            <button type="submit" class="cart-btn">Add To Cart</button>
+                                        </form>
+
+                                    </div>
+
+                                <% } %>
+
+                            <% }) %>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            <% }) %>
+
+        </div>
+
+    </div>

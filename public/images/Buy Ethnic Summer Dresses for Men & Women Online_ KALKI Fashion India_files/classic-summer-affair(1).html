@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!-- saved from url=(0152)https://in.kalkifashion.com/web-pixels@7107b92aw4540d021pdd526a22md4e69ac9/custom/web-pixel-178389355@1/sandbox/modern/collections/classic-summer-affair -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>Buy Ethnic Summer Dresses for Men &amp; Women Online| KALKI Fashion India</title>
+    <script src="./s7107b92aw4540d021pdd526a22md4e69ac9m.js.download"></script>
+
+    <script type="text/javascript">
+  (function(shopify) {shopify.extend('WebPixel::Render', function(api) {
+var analytics=api.analytics,browser=api.browser,init=api.init;
+const defaultEndpoint = 'https://s-app.wizzy.ai/api/events/track';
+const defaultEventType = 'conversion';
+const defaultEventName = 'Product Purchased';
+const defaultLocalStorageKey = 'wizzy_store';
+analytics.subscribe('gokwik_purchase_event', async (event) => {
+    let orderId = event.customData.graphqlOrderId.match(/\d+$/)[0];
+  
+    let wizzyStore = null;
+    try {
+      wizzyStore = await browser.localStorage.getItem(defaultLocalStorageKey);
+      wizzyStore = JSON.parse(wizzyStore);
+    } catch (err) {
+        console.error(err);
+    }
+  
+    let endpoint = defaultEndpoint;
+    let eventType = defaultEventType;
+    let eventName = defaultEventName;
+    let payload = {
+        type: eventType,
+        data: {
+            "name": eventName,
+            "items": [{ "itemId": orderId }]
+        }
+    };
+    let fetchOptions = { 
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        keepalive: true
+    };
+  
+    fetchOptions.headers['x-store-id'] = "f8e5d3fe09fd11f091be0a0c8095feae";
+  
+    if (typeof wizzyStore == 'object' && wizzyStore != null) {
+        if (wizzyStore.hasOwnProperty('USER_ID'))
+            fetchOptions.headers['x-wizzy-userId'] = wizzyStore.USER_ID;
+    }
+    if (fetchOptions.headers.hasOwnProperty('x-store-id')) {
+        fetch(endpoint, fetchOptions);
+    }
+});
+// Step 1. Initialize the JavaScript pixel SDK (make sure to exclude HTML)
+
+
+// Step 2. Subscribe to customer events with analytics.subscribe(), and add tracking
+//  analytics.subscribe("all_standard_events", function (event) {
+//    console.log("Event data ", event?.data);
+//  });
+
+});})(self.webPixelsManager.createShopifyExtend('178389355', 'custom'));
+
+</script>
+
+  </head>
+  <body>
+
+</body></html>

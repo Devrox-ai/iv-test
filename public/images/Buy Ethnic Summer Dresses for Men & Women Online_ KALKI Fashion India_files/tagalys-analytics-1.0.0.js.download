@@ -1,0 +1,320 @@
+(function () {
+
+  var q = window[window.TagalysAnalyticsObject].q
+  window[window.TagalysAnalyticsObject].q = [];
+
+  window[window.TagalysAnalyticsObject] = function () {
+    for (var i = 0; i < q.length; i++) {
+      ta_process.apply(window, q[i])
+    }
+    q = [];
+    ta_process.apply(window, arguments)
+  }
+
+  var ta_process = function () {
+    switch (arguments[0]) {
+      case 'init':
+        TagalysAnalytics.Context.apiServer = arguments[1].api_server;
+        TagalysAnalytics.Context.apiIdentification.client_code = arguments[1].client_code;
+        TagalysAnalytics.Context.apiIdentification.api_key = arguments[1].api_key;
+        TagalysAnalytics.Context.apiIdentification.store_id = arguments[1].store_id;
+        break;
+      case 'track':
+        switch (arguments[1]) {
+          case 'product_list':
+          case 'product_action':
+            TagalysAnalytics.trackEvent(arguments[1], arguments[2]);
+            break;
+          case 'user_sign_in':
+            TagalysAnalytics.trackUserIfRequired(arguments[2]);
+            break;
+          default:
+            break;
+        }
+        break;
+      case 'setDeviceId':
+        TagalysAnalytics.setRequiredCookies(arguments[1]);
+        break;
+      default:
+        break;
+    }
+  }
+
+  var TagalysAnalytics = {
+    internalVersion: 'r20240229'
+  };
+
+  TagalysAnalytics.Context = {
+    apiServer: '',
+    apiVersion: 1,
+    apiIdentification: {
+      client_code: "",
+      api_key: "",
+      store_id: ""
+    },
+    userId: null
+  };
+
+  TagalysAnalytics.rapidEventSequence = 0;
+  TagalysAnalytics.lastEventTimestamp = false;
+
+  TagalysAnalytics.createRequiredCookies = function () {
+    TagalysAnalytics.Utilities.Cookie.updateCookie('__ta_device', 63072000000);
+    TagalysAnalytics.Utilities.Cookie.updateCookie('__ta_visit', 1800000);
+  };
+
+  TagalysAnalytics.setRequiredCookies = function (val) {
+    TagalysAnalytics.Utilities.Cookie.setCookie('__ta_device', val, 63072000000);
+    TagalysAnalytics.Utilities.Cookie.setCookie('__ta_visit', val, 1800000);
+  };
+
+  TagalysAnalytics.track = function (endpoint, trackData, trackerVersion) {
+    if (TagalysAnalytics.Utilities.Cookie.cookiesEnabled()) {
+      if (typeof (trackerVersion) == 'undefined') {
+        trackerVersion = "20240229";
+      }
+      TagalysAnalytics.createRequiredCookies();
+      var user = {
+        device_id: TagalysAnalytics.Utilities.Cookie.getCookie('__ta_device'),
+        visit_id: TagalysAnalytics.Utilities.Cookie.getCookie('__ta_visit')
+      }
+      var user_id = TagalysAnalytics.Utilities.Cookie.getCookie('__ta_user_id');
+      if (user_id != "") {
+        user.user_id = user_id
+      }
+      var ajax_url = TagalysAnalytics.Context.apiServer + '/v' + 1 + '/' + endpoint;
+      if (TagalysAnalytics.lastEventTimestamp != false) {
+        var secondsSinceLastEvent = Math.floor((Date.now() - TagalysAnalytics.lastEventTimestamp) / 1000);
+      } else {
+        var secondsSinceLastEvent = 999999;
+      }
+      if (secondsSinceLastEvent < 2) {
+        TagalysAnalytics.rapidEventSequence += 1;
+      } else {
+        TagalysAnalytics.rapidEventSequence = 0;
+      }
+      TagalysAnalytics.lastEventTimestamp = Date.now();
+      var mergedData = trackData;
+      mergedData['rapid_event_sequence'] = TagalysAnalytics.rapidEventSequence;
+      mergedData['tracker_version'] = trackerVersion;
+      mergedData['identification'] = TagalysAnalytics.Utilities.Misc.deepExtend({}, TagalysAnalytics.Context.apiIdentification, { user: user });
+      TagalysAnalytics.Utilities.Ajax.ajax({
+        method: 'POST',
+        url: ajax_url,
+        contentType: 'application/x-www-form-urlencoded',
+        data: JSON.stringify(mergedData),
+        includeInCallbacks: { trackData: trackData },
+        success: function (data, preservedContext) {
+          var dataParsed = JSON.parse(data);
+          if (preservedContext.trackData.hasOwnProperty('event_type')) {
+            if (preservedContext.trackData.event_type == 'product_action' && dataParsed.hasOwnProperty('timestamp')) {
+              TagalysAnalytics.Utilities.Cookie.setCookie('__ta_last_pa_time', dataParsed.timestamp.split('T')[1].substring(0, 6), 1200000);
+            }
+          }
+        }
+      });
+    }
+  }
+
+  TagalysAnalytics.trackEvent = function (event_type, details, trackerVersion) {
+    if (typeof (trackerVersion) == 'undefined') {
+      trackerVersion = "20240229";
+    }
+    TagalysAnalytics.track('analytics/events/track', { event_type: event_type, details: details }, trackerVersion);
+  }
+
+  TagalysAnalytics.trackUser = function (user_id, update_visit, trackerVersion) {
+    if (TagalysAnalytics.Utilities.Cookie.cookiesEnabled()) {
+      if (typeof (trackerVersion) == 'undefined') {
+        trackerVersion = "20240229";
+      }
+      if (typeof (update_visit) == 'undefined') {
+        update_visit = true;
+      }
+      if (update_visit) {
+        TagalysAnalytics.track('analytics/users/track', { user_id: user_id }, trackerVersion);
+      }
+    }
+  }
+
+  TagalysAnalytics.trackUserIfRequired = function (userId) {
+    var cookieName = '__ta_user_id';
+    if (userId == null) {
+      TagalysAnalytics.Utilities.Cookie.deleteCookie(cookieName);
+      return;
+    }
+    var trackedUserId = TagalysAnalytics.Utilities.Cookie.getCookie(cookieName);
+    if (trackedUserId != userId) {
+      TagalysAnalytics.trackUser(userId, true);
+      TagalysAnalytics.Utilities.Cookie.setCookie(cookieName, userId, 63072000000);
+      TagalysAnalytics.Utilities.Cookie.updateCookie('__ta_device', 63072000000);
+    }
+  }
+
+  TagalysAnalytics.Api = {
+    call: function (endpoint, data, callback, failureCallback) {
+      data.identification = TagalysAnalytics.Context.apiIdentification;
+      data.identification.user = {
+        device_id: TagalysAnalytics.Utilities.Cookie.getCookie('__ta_device'),
+        visit_id: TagalysAnalytics.Utilities.Cookie.getCookie('__ta_visit')
+      };
+      if (TagalysAnalytics.Utilities.Cookie.cookiesEnabled()) {
+        data.last_pa_time = TagalysAnalytics.Utilities.Cookie.getCookie('__ta_last_pa_time');
+      }
+      TagalysAnalytics.Utilities.Ajax.ajax({
+        method: 'POST',
+        url: TagalysAnalytics.Context.apiServer + '/v' + TagalysAnalytics.Context.apiVersion + '/' + endpoint,
+        contentType: 'application/x-www-form-urlencoded',
+        data: TagalysAnalytics.Utilities.Misc.objectToFormData(data),
+        includeInCallbacks: {},
+        success: function (data, preservedContext) {
+          var dataParsed = JSON.parse(data);
+          callback(dataParsed);
+        },
+        failure: function (xhr, preservedContext) {
+          failureCallback(xhr, preservedContext)
+        }
+      });
+    }
+  };
+
+  TagalysAnalytics.Utilities = {};
+
+  TagalysAnalytics.Utilities.Ajax = {};
+  TagalysAnalytics.Utilities.Ajax.ajax = function (params) {
+    var xhr = new XMLHttpRequest();
+    xhr.open(params.method, params.url);
+    xhr.setRequestHeader('Content-Type', params.contentType);
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        params.success(xhr.responseText, params.includeInCallbacks)
+      } else {
+        if (typeof (params.failure) != 'undefined') {
+          params.failure(xhr, params.includeInCallbacks);
+        }
+      }
+    };
+    xhr.onerror = function () {
+      if (typeof (params.failure) != 'undefined') {
+        params.failure(xhr, params.includeInCallbacks);
+      }
+    }
+    xhr.send(params.data);
+  };
+
+  TagalysAnalytics.Utilities.Cookie = {};
+
+  TagalysAnalytics.Utilities.Cookie.cookiesEnabled = function () {
+    var cookieEnabled = navigator.cookieEnabled;
+    if (!cookieEnabled) {
+      document.cookie = "testcookie";
+      cookieEnabled = document.cookie.indexOf("testcookie") != -1;
+    }
+    return cookieEnabled;
+  }
+
+  TagalysAnalytics.Utilities.Cookie.setCookie = function (cname, cvalue, extime) {
+    var d = new Date();
+    d.setTime(d.getTime() + extime);
+    var expires = "expires=" + d.toUTCString();
+    cvalue = cvalue.replace(/;/g, '%3B');
+    if (window.location.hostname.indexOf('.') === -1) {
+      document.cookie = cname + "=" + cvalue + "; " + expires + "; " + "path=/; " + "domain=" + window.location.hostname;
+    } else {
+      document.cookie = cname + "=" + cvalue + "; " + expires + "; " + "path=/; " + "domain=." + window.location.hostname;
+    }
+  };
+
+  TagalysAnalytics.Utilities.Cookie.getCookie = function (cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') c = c.substring(1);
+      if (c.indexOf(name) == 0) {
+        var cvalue = c.substring(name.length, c.length);
+        cvalue = cvalue.replace(/%3B/g, ';');
+        return cvalue
+      }
+    }
+    return "";
+  };
+
+  TagalysAnalytics.Utilities.Cookie.deleteCookie = function (cname) {
+    TagalysAnalytics.Utilities.Cookie.setCookie(cname, "", -1);
+  };
+
+  // Creates the cookie with cname if required. If the cookie already exists, update the expiration time to current_time + extm
+  TagalysAnalytics.Utilities.Cookie.updateCookie = function (cname, extm) {
+    var cvalue = TagalysAnalytics.Utilities.Cookie.getCookie(cname);
+    if (cvalue == "") {
+      cvalue = TagalysAnalytics.Utilities.Misc.randomId(32);
+    }
+    // The cookie can be expired after the above if check. So, setting it again!
+    TagalysAnalytics.Utilities.Cookie.setCookie(cname, cvalue, extm);
+  }
+
+  TagalysAnalytics.Utilities.Misc = {};
+
+  // http://stackoverflow.com/questions/10726909/random-alpha-numeric-string-in-javascript
+  TagalysAnalytics.Utilities.Misc.randomId = function (length) {
+    var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var result = '';
+    for (var i = length; i > 0; --i) result += chars[Math.round(Math.random() * (chars.length - 1))];
+    return result;
+  };
+
+  TagalysAnalytics.Utilities.Misc.deepExtend = function (out) {
+    out = out || {};
+
+    for (var i = 1; i < arguments.length; i++) {
+      var obj = arguments[i];
+
+      if (!obj)
+        continue;
+
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          if (typeof obj[key] === 'object')
+            out[key] = TagalysAnalytics.Utilities.Misc.deepExtend(out[key], obj[key]);
+          else
+            out[key] = obj[key];
+        }
+      }
+    }
+
+    return out;
+  };
+
+  TagalysAnalytics.Utilities.Misc.flattenObject = function (ob) {
+    var toReturn = {};
+    for (var i in ob) {
+      if (!ob.hasOwnProperty(i)) continue;
+      if ((typeof ob[i]) == 'object' && ob[i] !== null) {
+        var flatObject = this.flattenObject(ob[i]);
+        for (var x in flatObject) {
+          if (!flatObject.hasOwnProperty(x)) continue;
+
+          toReturn[i + '.' + x] = flatObject[x];
+        }
+      } else {
+        toReturn[i] = ob[i];
+      }
+    }
+    return toReturn;
+  }
+  TagalysAnalytics.Utilities.Misc.objectToFormData = function (ob) {
+    var flattenedObject = this.flattenObject(ob);
+    var formData = Object.keys(flattenedObject).map(function (k) {
+      if (k.indexOf('.') == -1) {
+        var formatted = k;
+      } else {
+        var formatted = k.replace(/.\d+/g, '.').split('.').join('][').replace(']', '') + ']';
+      }
+      return encodeURIComponent(formatted) + '=' + encodeURIComponent(flattenedObject[k])
+    }).join('&');
+    return formData;
+  }
+
+  window[window.TagalysAnalyticsObject]();
+})()

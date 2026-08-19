@@ -1,0 +1,53 @@
+wishlist-link-floating {
+  --icon-fill: transparent;
+
+  position: fixed;
+  z-index: 2147483647;
+  opacity: 1;
+  transform: scale(1);
+  top: var(--button-offset-top);
+  bottom: var(--button-offset-bottom);
+  left: var(--button-offset-left);
+  right: var(--button-offset-right);
+}
+
+wishlist-link-floating[wk-loaded] {
+  transition-duration: 250ms;
+  transition-delay: 250ms;
+  transition-timing-function: linear, ease-in;
+  transition-property: opacity, transform;
+}
+
+wishlist-link-floating.wk-hidden {
+  opacity: 0;
+  transform: scale(0.7);
+  pointer-events: none !important;
+}
+
+wishlist-link-floating.wk-hidden .wk-button {
+  pointer-events: none !important;
+}
+
+wishlist-link-floating .wk-button {
+  min-width: var(--button-size) !important;
+  min-height: var(--button-size) !important;
+  background: var(--button-background) !important;
+  border: var(--button-border) !important;
+  border-radius: var(--button-border-radius) !important;
+  box-shadow: var(--button-box-shadow) !important;
+}
+
+wishlist-link-floating .wk-selected {
+  --icon-fill: var(--icon-stroke);
+}
+
+wishlist-link-floating .wk-counter.wk-bubble,
+wishlist-link-floating .wk-counter.wk-dot {
+  --size: var(--counter-size);
+  color: var(--counter-color);
+  background: var(--counter-background);
+  top: var(--counter-offset-vertical);
+  left: var(--counter-offset-horizontal);
+  border: var(--counter-border);
+  font-size: calc(var(--wk-font-text-scale) * 60%);
+}

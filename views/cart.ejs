@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Cart — KALKI Fashion</title>
+
+<link rel="stylesheet" href="/css/theme.css">
+
+</head>
+
+<body>
+
+    <%- include('partials/navbar') %>
+
+    <!-- PAGE HEADER -->
+
+    <div class="page-header">
+
+        <span class="eyebrow">Review & Checkout</span>
+
+        <h1>My Shopping Cart</h1>
+
+        <p><%= products.length %> item<%= products.length !== 1 ? 's' : '' %> in your cart</p>
+
+        <div class="breadcrumb">
+            <a href="/product/home">Home</a> &nbsp;/&nbsp; Cart
+        </div>
+
+    </div>
+
+    <div class="cart-wrap">
+
+        <% if(products.length > 0){ %>
+
+            <div class="cart-list">
+
+                <% products.forEach(function(product){ %>
+
+                    <div class="cart-row">
+
+                        <div class="c-img">
+                            <img src="/images/<%= product.image %>" alt="<%= product.title %>"
+                                onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
+                        </div>
+
+                        <div class="c-info">
+                            <h4><%= product.title %></h4>
+                            <div class="c-meta">Premium Handcrafted</div>
+                        </div>
+
+                        <form action="/product/cart/delete/<%= product._id %>" method="POST">
+                            <button type="submit" class="remove-btn">Remove</button>
+                        </form>
+
+                    </div>
+
+                <% }) %>
+
+            </div>
+
+        <% } else { %>
+
+            <div class="empty-state">
+                <div class="e-icon">🛒</div>
+                Your cart is empty.<br><br>
+                <a href="/product/home" class="auth-link" style="background: var(--wine); color: white; padding: 12px 28px;">Start Shopping</a>
+            </div>
+
+        <% } %>
+
+    </div>
+
+    <%- include('partials/footer') %>
+
+    <%- include('partials/login-toast') %>
+
+</body>
+</html>

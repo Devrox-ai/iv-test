@@ -1,0 +1,264 @@
+(function(){"use strict";const GEO_ASKED_KEY="kf_geo_asked";function isGuest(){return!window.customerId||window.customerId===""}function alreadyAsked(){return!!localStorage.getItem(GEO_ASKED_KEY)}function hasPin(){return typeof getFinalPin=="function"&&/^\d{6}$/.test(getFinalPin()||"")}function isIOS(){return/iP(hone|od|ad)/.test(navigator.userAgent)||navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1}async function getPincodeFromCoords(lat,lng){try{const url=`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`,pin=(await(await fetch(url,{headers:{"Accept-Language":"en"}})).json())?.address?.postcode?.replace(/[^0-9]/g,"").slice(0,6);if(pin&&/^\d{6}$/.test(pin))return console.log("[KF Geo] \u2705 Nominatim pincode:",pin),pin}catch(e){console.warn("[KF Geo] Nominatim failed:",e)}try{const url2=`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`,pin2=((await(await fetch(url2)).json())?.postcode||"").replace(/[^0-9]/g,"").slice(0,6);if(pin2&&/^\d{6}$/.test(pin2))return console.log("[KF Geo] \u26A0\uFE0F BigDataCloud pincode (fallback):",pin2),pin2}catch(e){console.warn("[KF Geo] BigDataCloud failed:",e)}return null}function injectStyles(){if(document.getElementById("kf-geo-styles"))return;const style=document.createElement("style");style.id="kf-geo-styles",style.textContent=`
+      #kf-geo-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 99998;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: kfGeoFadeIn 0.25s ease;
+      }
+      @keyframes kfGeoFadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      #kf-geo-popup {
+        background: #fff;
+        border-radius: 14px;
+        padding: 28px 24px 22px;
+        width: 320px;
+        max-width: calc(100vw - 32px);
+        box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+        text-align: center;
+        position: relative;
+        animation: kfGeoSlideUp 0.3s cubic-bezier(.34,1.4,.64,1);
+      }
+      @keyframes kfGeoSlideUp {
+        from { transform: translateY(30px); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+      }
+      #kf-geo-popup .kf-geo-icon {
+        width: 38px;
+        height: 38px;
+        margin: 0 auto 10px;
+        display: block;
+        color: #555;
+      }
+      #kf-geo-popup .kf-geo-site {
+        font-size: 13px;
+        color: #888;
+        margin-bottom: 4px;
+        font-family: inherit;
+      }
+      #kf-geo-popup .kf-geo-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 18px;
+        font-family: inherit;
+        line-height: 1.35;
+      }
+      #kf-geo-popup .kf-geo-btn {
+        display: block;
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: inherit;
+        letter-spacing: 0.01em;
+        transition: background 0.15s, opacity 0.15s;
+        margin-bottom: 10px;
+      }
+      #kf-geo-popup .kf-geo-btn-allow {
+        background: #000;
+        color: #fff;
+      }
+      #kf-geo-popup .kf-geo-btn-allow:hover { background: #222; }
+      #kf-geo-popup .kf-geo-btn-once {
+        background: #000;
+        color: #fff;
+      }
+      #kf-geo-popup .kf-geo-btn-once:hover { background: #222; }
+      #kf-geo-popup .kf-geo-btn-deny {
+        background: transparent;
+        color: #000;
+        font-weight: 500;
+        margin-bottom: 0;
+        border: 1.5px solid #ddd;
+      }
+      #kf-geo-popup .kf-geo-btn-deny:hover { background: #f5f5f5; }
+      #kf-geo-popup .kf-geo-close {
+        position: absolute;
+        top: 12px;
+        right: 14px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #999;
+        font-size: 20px;
+        line-height: 1;
+        padding: 0;
+      }
+      #kf-geo-popup .kf-geo-close:hover { color: #444; }
+      #kf-geo-popup.kf-geo-loading .kf-geo-btn-allow,
+      #kf-geo-popup.kf-geo-loading .kf-geo-btn-once {
+        opacity: 0.6;
+        cursor: wait;
+        pointer-events: none;
+      }
+      #kf-geo-spinner {
+        display: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #ddd;
+        border-top-color: #1a6ab1;
+        border-radius: 50%;
+        animation: kfSpin 0.7s linear infinite;
+        margin: 8px auto 0;
+      }
+      @keyframes kfSpin { to { transform: rotate(360deg); } }
+    `,document.head.appendChild(style)}function createPopup(){const overlay=document.createElement("div");return overlay.id="kf-geo-overlay",overlay.innerHTML=`
+      <div id="kf-geo-popup" role="dialog" aria-modal="true" aria-labelledby="kf-geo-title">
+        <button class="kf-geo-close" id="kf-geo-close-btn" aria-label="Close">&#x2715;</button>
+        <svg class="kf-geo-icon" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+          <circle cx="12" cy="9" r="2.5"/>
+        </svg>
+        <div class="kf-geo-site">kalkifashion.com</div>
+        <div class="kf-geo-title" id="kf-geo-title">Know your location</div>
+        <button class="kf-geo-btn kf-geo-btn-allow" id="kf-geo-allow-btn">
+          Allow while visiting the site
+        </button>
+        <button class="kf-geo-btn kf-geo-btn-once" id="kf-geo-once-btn">
+          Allow this time
+        </button>
+        <button class="kf-geo-btn kf-geo-btn-deny" id="kf-geo-deny-btn">
+          Never allow
+        </button>
+        <div id="kf-geo-spinner"></div>
+      </div>
+    `,overlay}function removePopup(){const el=document.getElementById("kf-geo-overlay");el&&(el.style.animation="kfGeoFadeIn 0.2s ease reverse",setTimeout(()=>el.remove(),200))}function setLoading(on){const popup=document.getElementById("kf-geo-popup"),spinner=document.getElementById("kf-geo-spinner");popup&&(popup.classList.toggle("kf-geo-loading",on),spinner&&(spinner.style.display=on?"block":"none"))}function showPincodeConfirmation(detectedPin){const popup=document.getElementById("kf-geo-popup");popup&&(popup.innerHTML=`
+      <button class="kf-geo-close" id="kf-geo-close-final" aria-label="Close">&#x2715;</button>
+      <svg class="kf-geo-icon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <circle cx="12" cy="9" r="2.5"/>
+      </svg>
+      <div class="kf-geo-site">Detected Pincode</div>
+      <div class="kf-geo-title" style="font-size: 28px; font-weight: 700; margin: 12px 0; letter-spacing: 2px;">${detectedPin}</div>
+      <div style="font-size: 13px; color: #666; margin-bottom: 18px;">Is this your correct pincode?</div>
+      <button class="kf-geo-btn kf-geo-btn-allow" id="kf-confirm-yes">
+        \u2713 Yes, this is correct
+      </button>
+      <button class="kf-geo-btn kf-geo-btn-deny" id="kf-confirm-edit" style="margin-bottom: 10px;">
+        \u270E Edit pincode
+      </button>
+      <button class="kf-geo-btn kf-geo-btn-deny" id="kf-confirm-skip" style="border: none; background: transparent; color: #999; font-size: 13px;">
+        Skip for now
+      </button>
+    `,document.getElementById("kf-confirm-yes")?.addEventListener("click",()=>{localStorage.setItem(GEO_ASKED_KEY,"allowed"),typeof savePin=="function"&&savePin(detectedPin,!1),triggerPinUpdate(detectedPin),removePopup(),console.log("[KF Geo] \u2705 User confirmed pincode:",detectedPin)}),document.getElementById("kf-confirm-edit")?.addEventListener("click",()=>{showManualPincodeEntry(detectedPin)}),document.getElementById("kf-confirm-skip")?.addEventListener("click",()=>{localStorage.setItem(GEO_ASKED_KEY,"denied"),removePopup()}),document.getElementById("kf-geo-close-final")?.addEventListener("click",()=>{localStorage.setItem(GEO_ASKED_KEY,"denied"),removePopup()}))}function showManualPincodeEntry(suggestedPin){const popup=document.getElementById("kf-geo-popup");if(!popup)return;popup.innerHTML=`
+      <button class="kf-geo-close" id="kf-geo-close-manual" aria-label="Close">&#x2715;</button>
+      <svg class="kf-geo-icon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <circle cx="12" cy="9" r="2.5"/>
+      </svg>
+      <div class="kf-geo-site">Enter Your Pincode</div>
+      <div class="kf-geo-title" style="font-size: 15px; margin-bottom: 14px;">We detected <strong>${suggestedPin}</strong><br>Please verify or correct it</div>
+      <input 
+        type="tel" 
+        id="kf-manual-pin-input" 
+        maxlength="6" 
+        pattern="[0-9]{6}" 
+        placeholder="Enter 6-digit pincode"
+        value="${suggestedPin}"
+        style="
+          width: 100%;
+          padding: 12px 16px;
+          border: 1.5px solid #ddd;
+          border-radius: 8px;
+          font-size: 16px;
+          text-align: center;
+          letter-spacing: 2px;
+          font-weight: 600;
+          margin-bottom: 12px;
+          font-family: inherit;
+          box-sizing: border-box;
+        "
+      />
+      <button class="kf-geo-btn kf-geo-btn-allow" id="kf-manual-save">
+        Save Pincode
+      </button>
+      <button class="kf-geo-btn kf-geo-btn-deny" id="kf-manual-cancel" style="border: none; background: transparent; color: #999;">
+        Cancel
+      </button>
+    `;const input=document.getElementById("kf-manual-pin-input"),saveBtn=document.getElementById("kf-manual-save");input?.focus(),input?.select(),input?.addEventListener("input",e=>{const val=e.target.value.replace(/[^0-9]/g,"");e.target.value=val,val.length===6?(saveBtn.disabled=!1,saveBtn.style.opacity="1",saveBtn.style.cursor="pointer"):(saveBtn.disabled=!0,saveBtn.style.opacity="0.5",saveBtn.style.cursor="not-allowed")}),saveBtn?.addEventListener("click",()=>{const manualPin=input?.value||"";/^\d{6}$/.test(manualPin)&&(localStorage.setItem(GEO_ASKED_KEY,"allowed"),typeof savePin=="function"&&savePin(manualPin,!0),triggerPinUpdate(manualPin),removePopup(),console.log("[KF Geo] \u2705 User manually entered pincode:",manualPin))}),document.getElementById("kf-manual-cancel")?.addEventListener("click",()=>{showPincodeConfirmation(suggestedPin)}),document.getElementById("kf-geo-close-manual")?.addEventListener("click",()=>{localStorage.setItem(GEO_ASKED_KEY,"denied"),removePopup()}),input?.addEventListener("keypress",e=>{e.key==="Enter"&&input.value.length===6&&saveBtn?.click()})}async function handleAllow(){setLoading(!0),navigator.geolocation.getCurrentPosition(async pos=>{const{latitude,longitude}=pos.coords,pin=await getPincodeFromCoords(latitude,longitude);setLoading(!1),pin?showPincodeConfirmation(pin):(removePopup(),localStorage.setItem(GEO_ASKED_KEY,"allowed"),console.warn("[KF Geo] \u26A0\uFE0F Pincode nahi mila coordinates se"))},err=>{setLoading(!1),removePopup(),localStorage.setItem(GEO_ASKED_KEY,"denied"),err.code===1&&showLocationGuide(),console.warn("[KF Geo] Geolocation denied or failed:",err.message)},{timeout:1e4,maximumAge:3e5})}function handleDeny(){localStorage.setItem(GEO_ASKED_KEY,"denied"),removePopup()}function showLocationGuide(){localStorage.removeItem("kf_geo_asked"),injectStyles();const extra=document.createElement("style");extra.textContent=`
+      #kf-geo-guide {
+        position: fixed;
+        top:0; left: 0; right: 0;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        background-color: rgba(0, 0, 0, 0.5);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.12);
+        z-index: 99999;
+        padding:0;
+        animation: kfSlideUpGuide 0.3s ease;
+        font-family: inherit;
+      }
+      .kf-geo-guide-back{
+        background-color: #fff;
+        height: fit-content;
+        padding: 16px 20px 24px;
+        position: relative;
+        border-radius: 5px;
+        margin: 0 16px;
+      }
+      @keyframes kfSlideUpGuide {
+        from { transform: translateY(100%); }
+        to   { transform: translateY(0); }
+      }
+      #kf-geo-guide .kf-guide-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+      }
+      #kf-geo-guide .kf-guide-steps {
+        font-size: 13px;
+        color: #555;
+        line-height: 1.6;
+        margin-bottom: 14px;
+      }
+      #kf-geo-guide .kf-guide-steps span {
+        display: block;
+      }
+      #kf-geo-guide .kf-guide-close {
+        position: absolute;
+        top: 5px; right: 5px;
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: #999;
+        cursor: pointer;
+        padding: 0;
+      }
+      #kf-geo-guide .kf-guide-btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: #000;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+        text-align: center;
+      }
+    `,document.head.appendChild(extra);const isChrome=/CriOS/.test(navigator.userAgent),isSafari=/Safari/.test(navigator.userAgent)&&!/CriOS/.test(navigator.userAgent),guide=document.createElement("div");guide.id="kf-geo-guide",guide.innerHTML=`
+      <div class="kf-geo-guide-back">
+        <button class="kf-guide-close" id="kf-guide-close">&#x2715;</button>
+        <div class="kf-guide-title">\u{1F4CD} Your Location Access is Blocked Kindly Enable</div>
+       
+        <button class="kf-guide-btn" id="kf-guide-reload">Reload Page</button>
+      </div>
+    `,document.body.appendChild(guide),document.getElementById("kf-guide-reload")?.addEventListener("click",()=>{location.reload()}),document.getElementById("kf-guide-close")?.addEventListener("click",()=>{guide.remove()})}function triggerPinUpdate(pin){if(document.querySelectorAll("#pincodeInput").forEach(el=>{el.value=pin,el.dispatchEvent(new Event("input",{bubbles:!0})),el.dispatchEvent(new Event("change",{bubbles:!0}))}),document.querySelectorAll(".selected-zip span").forEach(el=>{el.textContent=pin}),document.dispatchEvent(new CustomEvent("kf:pinUpdated",{detail:{pin}})),typeof getLocationDetails=="function"){getLocationDetails();return}typeof updateDeliveryInfo=="function"&&updateDeliveryInfo(pin),typeof showNearestStore=="function"&&showNearestStore(pin,!1)}function showPopup(){injectStyles();const overlay=createPopup();document.body.appendChild(overlay),document.getElementById("kf-geo-allow-btn")?.addEventListener("click",handleAllow),document.getElementById("kf-geo-once-btn")?.addEventListener("click",handleAllow),document.getElementById("kf-geo-deny-btn")?.addEventListener("click",handleDeny),document.getElementById("kf-geo-close-btn")?.addEventListener("click",handleDeny),overlay.addEventListener("click",e=>{e.target===overlay&&handleDeny()})}function requestDirectLocation(){localStorage.setItem(GEO_ASKED_KEY,"asked"),navigator.geolocation.getCurrentPosition(async pos=>{const{latitude,longitude}=pos.coords,pin=await getPincodeFromCoords(latitude,longitude);if(pin){injectStyles();const overlay=document.createElement("div");overlay.id="kf-geo-overlay",document.body.appendChild(overlay);const popup=document.createElement("div");popup.id="kf-geo-popup",overlay.appendChild(popup),showPincodeConfirmation(pin)}else localStorage.setItem(GEO_ASKED_KEY,"allowed"),console.warn("[KF Geo] \u26A0\uFE0F Pincode nahi mila")},err=>{localStorage.setItem(GEO_ASKED_KEY,"denied"),console.warn("[KF Geo] Denied:",err.message)},{timeout:1e4,maximumAge:3e5})}function init(){window.innerWidth>=750||isGuest()&&(hasPin()||alreadyAsked()||navigator.geolocation&&setTimeout(()=>{isIOS()?showPopup():requestDirectLocation()},1500))}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",init):init()})();
+//# sourceMappingURL=/cdn/shop/t/161/assets/geo-pincode-detector.js.map?v=163415722377667644371779338567

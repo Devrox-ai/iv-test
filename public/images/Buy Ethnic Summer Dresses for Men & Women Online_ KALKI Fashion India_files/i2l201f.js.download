@@ -1,0 +1,50 @@
+try { 
+	webengage.survey.onSubmit(function (data) {
+    if (data.surveyId === "~162if3o") {
+    var ques1;
+var ques2;
+
+console.log(data);
+
+for (var i = 0; i < data.questionResponses.length; i++) {
+    var response = data.questionResponses[i];
+    var values = response.value.values;
+
+    if (Array.isArray(values)) {
+        if (response.questionId === "3m9ift") {
+            var itemText = response.value.additionalInfo ? response.value.additionalInfo["Something else"] : null;
+
+            if (itemText) {
+                ques1 = "Something else: " + itemText;
+            } else {
+                // join array values into string if multiple
+                ques1 = values.join(", ");
+            }
+        }
+
+        if (response.questionId === "6f53s3") {
+            ques2 = values.join(", ");
+        }
+    }
+}
+
+   
+       console.log("ques1", ques1);
+       console.log("ques2", ques2);
+          
+          
+          webengage.track('Feedback submitted', {
+            "ques1": ques1,
+            "ques2": ques2
+               });
+
+    }
+});
+
+ } catch(e) { 
+ 	if (e instanceof Error) { 
+		var data = e.stack || e.description;
+		data = (data.length > 900 ? data.substring(0, 900) : data);
+	 	webengage.eLog(null, 'error', data, 'cwc-error','cwc', 'i2l201f');
+	 }
+ }
