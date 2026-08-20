@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= product.title %> — Vastraa</title>
+
+<link rel="stylesheet" href="/css/theme.css">
+<script src="/js/theme.js"></script>
+
+<style>
+
+    .pd-wrap{
+        width: 92%;
+        max-width: 1200px;
+        margin: 40px auto 80px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 50px;
+        align-items: flex-start;
+    }
+
+    .pd-img{
+        width: 100%;
+        aspect-ratio: 4 / 5;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        background: #f3ece7;
+        box-shadow: 0 10px 30px rgba(60,20,40,0.10);
+    }
+
+    .pd-img img{ width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+
+    .pd-info .pd-category{
+        font-size: 12px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .pd-info h1{
+        font-size: 38px;
+        font-weight: 500;
+        color: var(--wine-deep);
+        margin-bottom: 14px;
+        line-height: 1.15;
+    }
+
+    .pd-info .pd-price{
+        font-size: 26px;
+        font-weight: 600;
+        color: var(--wine);
+        margin-bottom: 22px;
+    }
+
+    .pd-info .pd-meta-line{
+        font-size: 14px;
+        color: #5a4c56;
+        margin-bottom: 26px;
+        line-height: 1.7;
+    }
+
+    .pd-actions{ display: flex; gap: 14px; margin-bottom: 30px; flex-wrap: wrap; }
+
+    .pd-actions form{ flex: 1; min-width: 180px; }
+
+    .pd-actions .cart-btn, .pd-actions .buy-btn{
+        width: 100%;
+        padding: 15px;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        border-radius: 3px;
+        cursor: pointer;
+        border: none;
+    }
+
+    .pd-actions .buy-btn{
+        background: var(--wine-deep);
+        color: white;
+    }
+
+    .pd-trust{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        font-size: 13px;
+        color: #5a4c56;
+        border-top: 1px solid #eee2da;
+        padding-top: 20px;
+    }
+
+    .related-wrap{ width: 92%; max-width: 1200px; margin: 0 auto 80px; }
+
+    @media(max-width: 860px){
+        .pd-wrap{ grid-template-columns: 1fr; }
+    }
+
+</style>
+
+</head>
+
+<body>
+
+    <%- include('partials/navbar') %>
+
+    <div class="pd-wrap">
+
+        <div class="pd-img">
+            <img src="/images/<%= product.image %>" alt="<%= product.title %>"
+                onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
+        </div>
+
+        <div class="pd-info">
+
+            <% if(categoryName){ %>
+                <span class="pd-category"><%= categoryName %></span>
+            <% } %>
+
+            <h1><%= product.title %></h1>
+
+            <% if(product.price){ %>
+                <div class="pd-price">₹<%= product.price.toLocaleString('en-IN') %></div>
+            <% } else { %>
+                <div class="pd-price">Price unavailable</div>
+            <% } %>
+
+            <div class="pd-meta-line">
+                Premium handcrafted piece, made by skilled artisans using traditional techniques
+                paired with modern tailoring for an everyday-elegant fit.
+            </div>
+
+            <div class="pd-actions">
+
+                <form action="/product/cart/add/<%= product._id %>" method="POST">
+                    <button type="submit" class="cart-btn">Add To Cart</button>
+                </form>
+
+                <form action="/product/cart/add/<%= product._id %>" method="POST">
+                    <button type="submit" class="buy-btn">Buy Now</button>
+                </form>
+
+            </div>
+
+            <div class="pd-trust">
+                <span>🚚 Free shipping on prepaid orders above ₹2999</span>
+                <span>↩️ 7-day hassle free returns</span>
+                <span>🔒 100% secure checkout with Razorpay</span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <% if(related && related.length > 0){ %>
+
+        <div class="related-wrap">
+
+            <div class="section-head">
+                <span class="eyebrow">You May Also Like</span>
+                <h2>Related Pieces</h2>
+                <div class="rule"></div>
+            </div>
+
+            <div class="product-grid">
+
+                <% related.forEach(function(item){ %>
+
+                    <div class="p-card">
+
+                        <a href="/product/view/<%= item._id %>" class="p-img">
+                            <img src="/images/<%= item.image %>" alt="<%= item.title %>"
+                                onerror="imgFallback(this, '<%= item.title.replace(/'/g, '') %>')">
+                        </a>
+
+                        <div class="p-body">
+                            <a href="/product/view/<%= item._id %>" style="text-decoration:none; color:inherit;">
+                                <h4><%= item.title %></h4>
+                            </a>
+                            <div class="p-meta">Premium Handcrafted</div>
+                            <% if(item.price){ %>
+                                <div class="p-price">₹<%= item.price.toLocaleString('en-IN') %></div>
+                            <% } %>
+
+                            <form action="/product/cart/add/<%= item._id %>" method="POST">
+                                <button type="submit" class="cart-btn">Add To Cart</button>
+                            </form>
+                        </div>
+
+                    </div>
+
+                <% }) %>
+
+            </div>
+
+        </div>
+
+    <% } %>
+
+    <%- include('partials/footer') %>
+
+    <%- include('partials/login-toast') %>
+
+</body>
+</html>

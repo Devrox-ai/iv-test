@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Confirmed — Vastraa</title>
+
+<link rel="stylesheet" href="/css/theme.css">
+<script src="/js/theme.js"></script>
+
+<style>
+
+    .os-wrap{
+        width: 92%;
+        max-width: 700px;
+        margin: 70px auto;
+        text-align: center;
+    }
+
+    .os-check{
+        width: 74px;
+        height: 74px;
+        border-radius: 50%;
+        background: #1e7d3c;
+        color: white;
+        font-size: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 22px;
+    }
+
+    .os-wrap h1{ font-size: 30px; color: var(--wine-deep); margin-bottom: 10px; }
+    .os-wrap p{ color: #5a4c56; margin-bottom: 30px; }
+
+    .os-card{
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(60,20,40,0.07);
+        padding: 24px;
+        text-align: left;
+        margin-bottom: 30px;
+    }
+
+    .os-row{ display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: #5a4c56; }
+    .os-row.total{ font-weight: 700; font-size: 17px; color: var(--wine-deep); border-top: 1px solid #eee2da; margin-top: 10px; padding-top: 14px; }
+
+    .os-item{ display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+
+</style>
+
+</head>
+
+<body>
+
+    <%- include('partials/navbar') %>
+
+    <div class="os-wrap">
+
+        <div class="os-check">✓</div>
+
+        <h1>Order Confirmed!</h1>
+        <p>Thank you for shopping with Vastraa. A confirmation has been recorded for your order.</p>
+
+        <div class="os-card">
+
+            <div class="os-row"><span>Order ID</span><span><%= order._id %></span></div>
+            <div class="os-row"><span>Payment ID</span><span><%= order.razorpayPaymentId || order.paymentId %></span></div>
+            <% if(order.paymentMode === 'test'){ %>
+                <div class="os-row"><span>Mode</span><span>Test Payment (no real charge)</span></div>
+            <% } %>
+
+            <div style="margin: 16px 0; border-top: 1px dashed #eee2da;"></div>
+
+            <% order.items.forEach(function(item){ %>
+                <div class="os-item">
+                    <span><%= item.title %></span>
+                    <span><%= item.price ? '₹' + item.price.toLocaleString('en-IN') : '—' %></span>
+                </div>
+            <% }) %>
+
+            <div class="os-row total"><span>Total Paid</span><span>₹<%= order.total.toLocaleString('en-IN') %></span></div>
+
+        </div>
+
+        <a href="/product/home" class="auth-link" style="background: var(--wine); color: white; padding: 14px 32px; display:inline-block;">Continue Shopping</a>
+
+    </div>
+
+    <%- include('partials/footer') %>
+
+</body>
+</html>

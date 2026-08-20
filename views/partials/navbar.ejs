@@ -16,7 +16,7 @@
 
             <div class="left-menu">
                 <% categories.forEach(function(cat){ %>
-                    <a href="/product/category/<%= cat._id %>"><%= cat.name %></a>
+                    <a href="/product/category/<%= cat._id %>#trending"><%= cat.name %></a>
                 <% }) %>
             </div>
 
@@ -76,7 +76,7 @@
             <a href="/product/home">Home</a>
 
             <% categories.forEach(function(cat){ %>
-                <a href="/product/category/<%= cat._id %>"><%= cat.name %></a>
+                <a href="/product/category/<%= cat._id %>#trending"><%= cat.name %></a>
             <% }) %>
 
             <a href="/product/cart">Cart<% if(typeof cartCount !== 'undefined' && cartCount > 0){ %> (<%= cartCount %>)<% } %></a>
@@ -103,8 +103,8 @@
 
                 <div class="dropdown">
 
-                    <a href="/product/category/<%= category._id %>"
-                        class="<%= (typeof activeCategoryId !== 'undefined' && activeCategoryId == category._id.toString()) ? 'active-link' : '' %>">
+                    <a href="/product/category/<%= category._id %>#trending"
+                        class="<%= (typeof filterCategoryId !== 'undefined' && filterCategoryId == category._id.toString()) ? 'active-link' : '' %>">
                         <%= category.name %>
                     </a>
 
@@ -118,12 +118,12 @@
 
                                     <div class="mini-card">
 
-                                        <div class="mini-img">
+                                        <a href="/product/view/<%= product._id %>" class="mini-img">
                                             <img src="/images/<%= product.image %>" alt="<%= product.title %>"
                                                 onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
-                                        </div>
+                                        </a>
 
-                                        <p><%= product.title %></p>
+                                        <a href="/product/view/<%= product._id %>" style="text-decoration:none; color:inherit;"><p><%= product.title %><% if(product.price){ %> — ₹<%= product.price.toLocaleString('en-IN') %><% } %></p></a>
 
                                         <form action="/product/cart/add/<%= product._id %>" method="POST">
                                             <button type="submit" class="cart-btn">Add To Cart</button>

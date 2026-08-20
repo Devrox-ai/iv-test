@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Add Product — Admin</title>
+    <title>Edit Product — Admin</title>
 
     <link rel="stylesheet" href="/css/theme.css">
 
@@ -65,7 +65,6 @@
             margin-bottom: 20px;
         }
 
-        .admin-alert.success{ background: #e7f6ec; color: #206b3a; border: 1px solid #b9e4c6; }
         .admin-alert.error{ background: #fbe9e9; color: #a33; border: 1px solid #f3c4c4; }
 
         .field{ margin-bottom: 20px; }
@@ -80,6 +79,7 @@
         }
 
         .field input[type="text"],
+        .field input[type="number"],
         .field select{
             width: 100%;
             padding: 13px 14px;
@@ -92,10 +92,17 @@
             transition: 0.2s;
         }
 
-        .field input[type="text"]:focus,
+        .field input:focus,
         .field select:focus{ border-color: var(--gold); background: white; }
 
-        /* IMAGE UPLOAD DROPZONE */
+        .current-img{
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            margin-bottom: 12px;
+        }
 
         .upload-box{
             border: 2px dashed var(--line);
@@ -108,8 +115,7 @@
             background: var(--ivory);
         }
 
-        .upload-box:hover,
-        .upload-box.drag{ border-color: var(--gold); background: #fbf2e2; }
+        .upload-box:hover{ border-color: var(--gold); background: #fbf2e2; }
 
         .upload-box input[type="file"]{
             position: absolute;
@@ -119,22 +125,8 @@
         }
 
         .upload-box .u-icon{ font-size: 26px; margin-bottom: 8px; }
-
         .upload-box .u-text{ font-size: 13px; color: #6b5a65; }
-
         .upload-box .u-text span{ color: var(--wine); font-weight: 500; }
-
-        .preview-wrap{ margin-top: 14px; display: none; }
-
-        .preview-wrap.show{ display: block; }
-
-        .preview-wrap img{
-            width: 100%;
-            max-height: 220px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid var(--line);
-        }
 
         .submit-btn{
             width: 100%;
@@ -153,11 +145,6 @@
 
         .submit-btn:hover{ background: var(--wine-deep); }
 
-        @media(max-width: 480px){
-            .admin-card{ padding: 30px 22px; }
-            .admin-card h1{ font-size: 27px; }
-        }
-
     </style>
 
 </head>
@@ -168,23 +155,17 @@
 
         <div class="admin-card">
 
-            <a href="/product/home" class="admin-back">← Back To Store</a>
-            <a href="/product/manage" class="admin-back" style="float:right;">Manage Products →</a>
-            <div style="clear:both;"></div>
+            <a href="/product/manage" class="admin-back">← Back To Manage Products</a>
 
             <span class="admin-eyebrow">Admin Panel</span>
-            <h1>Add Product</h1>
+            <h1>Edit Product</h1>
 
             <% if(typeof error !== 'undefined' && error){ %>
                 <div class="admin-alert error"><%= error %></div>
             <% } %>
 
-            <% if(typeof added !== 'undefined' && added){ %>
-                <div class="admin-alert success">Product added successfully.</div>
-            <% } %>
-
             <form
-                action="/product/add"
+                action="/product/update/<%= product._id %>"
                 method="POST"
                 enctype="multipart/form-data"
             >
@@ -196,7 +177,7 @@
                     <input
                         type="text"
                         name="title"
-                        placeholder="e.g. Sky Blue Kurta Set"
+                        value="<%= product.title %>"
                         required
                     >
                 </div>
@@ -208,7 +189,7 @@
                     <input
                         type="number"
                         name="price"
-                        placeholder="e.g. 2499"
+                        value="<%= product.price || '' %>"
                         min="0"
                         step="1"
                         required
@@ -224,85 +205,34 @@
                         <option value="">Select Category</option>
 
                         <% categories.forEach(category => { %>
-                            <option value="<%= category._id %>"><%= category.name %></option>
+                            <option value="<%= category._id %>" <%= product.categoryId == category._id.toString() ? 'selected' : '' %>><%= category.name %></option>
                         <% }) %>
 
                     </select>
                 </div>
 
-                <!-- IMAGE UPLOAD -->
+                <!-- CURRENT IMAGE + REPLACE -->
 
                 <div class="field">
                     <label>Product Image</label>
 
-                    <div class="upload-box" id="uploadBox">
-                        <input type="file" name="image" id="imageInput" accept="image/*" required>
-                        <div class="u-icon">📷</div>
-                        <div class="u-text"><span>Click to upload</span> or drag an image here</div>
-                    </div>
+                    <img class="current-img" src="/images/<%= product.image %>" alt="<%= product.title %>">
 
-                    <div class="preview-wrap" id="previewWrap">
-                        <img id="previewImg" src="" alt="Preview">
+                    <div class="upload-box">
+                        <input type="file" name="image" accept="image/*">
+                        <div class="u-icon">📷</div>
+                        <div class="u-text"><span>Click to replace</span> (leave empty to keep current image)</div>
                     </div>
 
                 </div>
 
-                <button type="submit" class="submit-btn">Add Product</button>
+                <button type="submit" class="submit-btn">Save Changes</button>
 
             </form>
 
         </div>
 
     </div>
-
-    <script>
-        const imageInput = document.getElementById("imageInput");
-        const uploadBox = document.getElementById("uploadBox");
-        const previewWrap = document.getElementById("previewWrap");
-        const previewImg = document.getElementById("previewImg");
-
-        imageInput.addEventListener("change", function () {
-
-            const file = this.files && this.files[0];
-
-            if (!file) {
-                previewWrap.classList.remove("show");
-                return;
-            }
-
-            const reader = new FileReader();
-
-            reader.onload = e => {
-                previewImg.src = e.target.result;
-                previewWrap.classList.add("show");
-            };
-
-            reader.readAsDataURL(file);
-
-        });
-
-        ["dragenter", "dragover"].forEach(evt => {
-            uploadBox.addEventListener(evt, e => {
-                e.preventDefault();
-                uploadBox.classList.add("drag");
-            });
-        });
-
-        ["dragleave", "drop"].forEach(evt => {
-            uploadBox.addEventListener(evt, e => {
-                e.preventDefault();
-                uploadBox.classList.remove("drag");
-            });
-        });
-
-        uploadBox.addEventListener("drop", e => {
-            const file = e.dataTransfer.files && e.dataTransfer.files[0];
-            if (file) {
-                imageInput.files = e.dataTransfer.files;
-                imageInput.dispatchEvent(new Event("change"));
-            }
-        });
-    </script>
 
 </body>
 

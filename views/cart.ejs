@@ -6,6 +6,113 @@
 <title>My Cart — Vastraa</title>
 
 <link rel="stylesheet" href="/css/theme.css">
+<script src="/js/theme.js"></script>
+
+<style>
+
+    .fake-pay-overlay{
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(30,10,20,0.55);
+        z-index: 999;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+
+    .fake-pay-overlay.show{ display: flex; }
+
+    .fake-pay-box{
+        width: 100%;
+        max-width: 380px;
+        background: white;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+    }
+
+    .fake-pay-head{
+        background: var(--wine-deep);
+        color: white;
+        padding: 20px 24px;
+    }
+
+    .fake-pay-head .fp-badge{
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .fake-pay-head h3{ font-size: 19px; font-weight: 500; }
+
+    .fake-pay-body{ padding: 24px; }
+
+    .fp-amount-row{
+        text-align: center;
+        padding: 18px;
+        background: var(--ivory);
+        border-radius: 10px;
+        margin-bottom: 22px;
+    }
+
+    .fp-amount-row .fp-label{ font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #8a7a86; }
+    .fp-amount-row .fp-amount{ font-size: 32px; font-weight: 700; color: var(--wine-deep); margin-top: 6px; }
+
+    .fp-field{ margin-bottom: 14px; }
+
+    .fp-field label{ display: block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #6b5a65; margin-bottom: 6px; }
+
+    .fp-field input{
+        width: 100%;
+        padding: 11px 12px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        font-size: 14px;
+        background: var(--ivory);
+        font-family: "Jost", sans-serif;
+    }
+
+    .fp-row-2{ display: flex; gap: 12px; }
+    .fp-row-2 .fp-field{ flex: 1; }
+
+    .fp-pay-btn{
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 30px;
+        background: var(--wine);
+        color: white;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        margin-top: 6px;
+    }
+
+    .fp-pay-btn:hover{ background: var(--wine-deep); }
+    .fp-pay-btn:disabled{ opacity: 0.6; cursor: not-allowed; }
+
+    .fp-cancel{
+        display: block;
+        text-align: center;
+        margin-top: 14px;
+        font-size: 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #8a7a86;
+        background: none;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .fp-note{ font-size: 11px; color: #8a7a86; text-align: center; margin-top: 14px; line-height: 1.5; }
+
+</style>
 
 </head>
 
@@ -33,29 +140,64 @@
 
         <% if(products.length > 0){ %>
 
-            <div class="cart-list">
+            <% var cartTotal = products.reduce(function(sum, p){ return sum + (p.price || 0); }, 0); %>
 
-                <% products.forEach(function(product){ %>
+            <div class="cart-layout">
 
-                    <div class="cart-row">
+                <div class="cart-list">
 
-                        <div class="c-img">
-                            <img src="/images/<%= product.image %>" alt="<%= product.title %>"
-                                onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
+                    <% products.forEach(function(product){ %>
+
+                        <div class="cart-row">
+
+                            <div class="c-img">
+                                <img src="/images/<%= product.image %>" alt="<%= product.title %>"
+                                    onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
+                            </div>
+
+                            <div class="c-info">
+                                <h4><%= product.title %></h4>
+                                <div class="c-meta">Premium Handcrafted</div>
+                                <div class="c-price"><%= product.price ? '₹' + product.price.toLocaleString('en-IN') : 'Price unavailable' %></div>
+                            </div>
+
+                            <form action="/product/cart/delete/<%= product._id %>" method="POST">
+                                <button type="submit" class="remove-btn">Remove</button>
+                            </form>
+
                         </div>
 
-                        <div class="c-info">
-                            <h4><%= product.title %></h4>
-                            <div class="c-meta">Premium Handcrafted</div>
-                        </div>
+                    <% }) %>
 
-                        <form action="/product/cart/delete/<%= product._id %>" method="POST">
-                            <button type="submit" class="remove-btn">Remove</button>
-                        </form>
+                </div>
 
+                <div class="cart-summary">
+
+                    <h3>Order Summary</h3>
+
+                    <div class="summary-row">
+                        <span>Subtotal (<%= products.length %> item<%= products.length !== 1 ? 's' : '' %>)</span>
+                        <span>₹<%= cartTotal.toLocaleString('en-IN') %></span>
                     </div>
 
-                <% }) %>
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span class="free-tag">Free</span>
+                    </div>
+
+                    <div class="summary-divider"></div>
+
+                    <div class="summary-row summary-total">
+                        <span>Total</span>
+                        <span>₹<%= cartTotal.toLocaleString('en-IN') %></span>
+                    </div>
+
+                    <button type="button" class="checkout-btn" id="checkoutBtn">Proceed To Checkout</button>
+                    <div id="checkoutError" style="color:#b3261e; font-size:13px; margin-top:10px; display:none;"></div>
+
+                    <a href="/product/home" class="continue-link">← Continue Shopping</a>
+
+                </div>
 
             </div>
 
@@ -71,9 +213,153 @@
 
     </div>
 
+    <!-- FAKE TEST PAYMENT SCREEN -->
+
+    <div class="fake-pay-overlay" id="fakePayOverlay">
+
+        <div class="fake-pay-box">
+
+            <div class="fake-pay-head">
+                <span class="fp-badge">Test Payment Gateway</span>
+                <h3>Vastraa Checkout</h3>
+            </div>
+
+            <div class="fake-pay-body">
+
+                <div class="fp-amount-row">
+                    <div class="fp-label">Amount To Pay</div>
+                    <div class="fp-amount" id="fpAmount">₹0</div>
+                </div>
+
+                <div class="fp-field">
+                    <label>Card Number</label>
+                    <input type="text" placeholder="4242 4242 4242 4242" maxlength="19">
+                </div>
+
+                <div class="fp-row-2">
+                    <div class="fp-field">
+                        <label>Expiry</label>
+                        <input type="text" placeholder="12/29" maxlength="5">
+                    </div>
+                    <div class="fp-field">
+                        <label>CVV</label>
+                        <input type="text" placeholder="123" maxlength="3">
+                    </div>
+                </div>
+
+                <button type="button" class="fp-pay-btn" id="fpPayBtn">Pay Now</button>
+                <button type="button" class="fp-cancel" id="fpCancelBtn">Cancel</button>
+
+                <div class="fp-note">This is a test payment screen for development.<br>No real money is charged, no card details are checked.</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
     <%- include('partials/footer') %>
 
     <%- include('partials/login-toast') %>
+
+    <script>
+
+        var checkoutBtn = document.getElementById("checkoutBtn");
+        var errorBox = document.getElementById("checkoutError");
+
+        var overlay = document.getElementById("fakePayOverlay");
+        var fpAmount = document.getElementById("fpAmount");
+        var fpPayBtn = document.getElementById("fpPayBtn");
+        var fpCancelBtn = document.getElementById("fpCancelBtn");
+
+        function formatRupees(n) {
+            return "₹" + Number(n).toLocaleString("en-IN");
+        }
+
+        function openFakeGateway() {
+            overlay.classList.add("show");
+        }
+
+        function closeFakeGateway() {
+            overlay.classList.remove("show");
+        }
+
+        if (checkoutBtn) {
+
+            checkoutBtn.addEventListener("click", async function () {
+
+                errorBox.style.display = "none";
+
+                checkoutBtn.disabled = true;
+                checkoutBtn.textContent = "Please wait...";
+
+                try {
+
+                    // Auto-calculate the amount to pay by asking the server for the
+                    // current cart total (never trust a client-side number).
+                    const totalRes = await fetch("/product/cart/total");
+                    const totalData = await totalRes.json();
+
+                    if (!totalData.success || totalData.itemCount === 0) {
+                        throw new Error("Your cart is empty.");
+                    }
+
+                    fpAmount.textContent = formatRupees(totalData.total);
+                    openFakeGateway();
+
+                } catch (err) {
+
+                    errorBox.textContent = err.message || "Something went wrong. Please try again.";
+                    errorBox.style.display = "block";
+
+                } finally {
+
+                    checkoutBtn.disabled = false;
+                    checkoutBtn.textContent = "Proceed To Checkout";
+
+                }
+
+            });
+
+        }
+
+        if (fpCancelBtn) {
+            fpCancelBtn.addEventListener("click", closeFakeGateway);
+        }
+
+        if (fpPayBtn) {
+
+            fpPayBtn.addEventListener("click", async function () {
+
+                fpPayBtn.disabled = true;
+                fpPayBtn.textContent = "Processing...";
+
+                try {
+
+                    const payRes = await fetch("/product/checkout/fake-pay", { method: "POST" });
+                    const payData = await payRes.json();
+
+                    if (!payData.success) {
+                        throw new Error(payData.message || "Payment failed. Please try again.");
+                    }
+
+                    window.location.href = payData.redirect;
+
+                } catch (err) {
+
+                    closeFakeGateway();
+                    errorBox.textContent = err.message || "Payment failed. Please try again.";
+                    errorBox.style.display = "block";
+                    fpPayBtn.disabled = false;
+                    fpPayBtn.textContent = "Pay Now";
+
+                }
+
+            });
+
+        }
+
+    </script>
 
 </body>
 </html>

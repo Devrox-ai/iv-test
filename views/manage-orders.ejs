@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders — Admin</title>
+
+    <link rel="stylesheet" href="/css/theme.css">
+    <script src="/js/theme.js"></script>
+
+    <style>
+        .manage-wrap {
+            width: 92%;
+            max-width: 1200px;
+            margin: 50px auto 100px;
+        }
+
+        .manage-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .manage-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--wine);
+        }
+
+        .manage-head h1 {
+            font-size: 34px;
+            color: var(--wine-deep);
+            font-weight: 500;
+        }
+
+        .manage-actions { 
+            display: flex; 
+            gap: 10px; 
+        }
+
+        .manage-actions a {
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid var(--wine);
+            color: var(--wine);
+        }
+
+        .manage-actions a.solid { 
+            background: var(--wine); 
+            color: white; 
+        }
+
+        .empty-state { 
+            text-align: center; 
+            padding: 70px 20px; 
+            color: #8a7a86; 
+            font-size: 16px; 
+        }
+
+        .order-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 18px; 
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(60, 20, 40, 0.08);
+            padding: 20px 22px;
+        }
+
+        .order-top {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-bottom: 1px solid #eee2da;
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+        }
+
+        .order-user { 
+            font-size: 16px; 
+            font-weight: 600; 
+            color: var(--wine-deep); 
+        }
+
+        .order-user .oi { 
+            font-size: 11px; 
+            letter-spacing: 1px; 
+            text-transform: uppercase; 
+            color: #8a7a86; 
+            font-weight: 400; 
+            display: block; 
+            margin-top: 2px; 
+        }
+
+        .order-meta { 
+            text-align: right; 
+            font-size: 12px; 
+            color: #8a7a86; 
+        }
+
+        .order-status {
+            display: inline-block;
+            margin-top: 4px;
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: #e7f6ec;
+            color: #206b3a;
+            font-weight: 600;
+        }
+
+        .order-status.test { 
+            background: #fbf2e2; 
+            color: #a3791a; 
+        }
+
+        .order-items { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 6px; 
+            margin-bottom: 12px; 
+        }
+
+        .order-item-row { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 14px; 
+            color: #5a4c56; 
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--wine-deep);
+            border-top: 1px solid #eee2da;
+            padding-top: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="manage-wrap">
+
+        <a href="/product/home" class="manage-back">← Back To Store</a>
+
+        <div class="manage-head" style="margin-top: 18px;">
+            <h1>Orders</h1>
+            <div class="manage-actions">
+                <a href="/product/manage">Manage Products</a>
+                <a href="/product/manage-categories">Manage Categories</a>
+            </div>
+        </div>
+
+        <% if (typeof orders !== 'undefined' && orders && orders.length > 0) { %>
+
+            <div class="order-list">
+
+                <% orders.forEach(function(order) { %>
+
+                    <div class="order-card">
+
+                        <div class="order-top">
+
+                            <div class="order-user">
+                                <%= (typeof userMap !== 'undefined' && userMap && order.userId) ? (userMap[order.userId.toString()] || 'Unknown User') : 'Unknown User' %>
+                                <span class="oi">User ID: <%= order.userId || 'N/A' %></span>
+                            </div>
+
+                            <div class="order-meta">
+                                Order ID: <%= order._id %><br>
+                                <%= order.createdAt ? new Date(order.createdAt).toLocaleString('en-IN') : '' %>
+                                <div>
+                                    <span class="order-status <%= order.paymentMode === 'test' ? 'test' : '' %>">
+                                        <%= order.status || 'paid' %>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="order-items">
+                            <% if (order.items && Array.isArray(order.items) && order.items.length > 0) { %>
+                                <% order.items.forEach(function(item){ %>
+                                    <div class="order-item-row">
+                                        <span><%= item.title || item.name || 'Unnamed Product' %></span>
+                                        <span><%= item.price ? '₹' + Number(item.price).toLocaleString('en-IN') : '—' %></span>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <div class="order-item-row">
+                                    <span style="font-style: italic; color: #8a7a86;">No items found in this order</span>
+                                    <span>—</span>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <div class="order-total">
+                            <span>Total</span>
+                            <span>₹<%= order.total ? Number(order.total).toLocaleString('en-IN') : '0' %></span>
+                        </div>
+
+                    </div>
+
+                <% }); %>
+
+            </div>
+
+        <% } else { %>
+
+            <div class="empty-state">No orders placed yet.</div>
+
+        <% } %>
+
+    </div>
+
+</body>
+
+</html>

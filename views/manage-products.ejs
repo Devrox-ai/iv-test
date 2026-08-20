@@ -9,6 +9,7 @@
     <title>Manage Products — Admin</title>
 
     <link rel="stylesheet" href="/css/theme.css">
+    <script src="/js/theme.js"></script>
 
     <style>
 
@@ -100,10 +101,34 @@
             letter-spacing: 1px;
             text-transform: uppercase;
             color: var(--gold);
+            margin-bottom: 6px;
+        }
+
+        .manage-card .m-price{
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--wine-deep);
             margin-bottom: 12px;
         }
 
         .manage-card form{ margin: 0; }
+
+        .edit-btn{
+            flex: 1;
+            display: inline-block;
+            text-align: center;
+            padding: 10px 14px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 30px;
+            border: 1px solid var(--wine);
+            color: var(--wine);
+            background: white;
+        }
+
+        .edit-btn:hover{ background: var(--wine); color: white; }
 
         .empty-state{ text-align: center; padding: 70px 20px; color: #8a7a86; font-size: 16px; }
 
@@ -121,12 +146,17 @@
             <h1>Manage Products</h1>
             <div class="manage-actions">
                 <a href="/product/manage-categories">Manage Categories</a>
+                <a href="/product/manage-orders">Orders</a>
                 <a href="/product/product-form" class="solid">+ Add Product</a>
             </div>
         </div>
 
         <% if(typeof deleted !== 'undefined' && deleted){ %>
             <div class="admin-alert">Product deleted successfully.</div>
+        <% } %>
+
+        <% if(typeof updated !== 'undefined' && updated){ %>
+            <div class="admin-alert">Product updated successfully.</div>
         <% } %>
 
         <% if(products.length > 0){ %>
@@ -145,11 +175,18 @@
                         <div class="m-body">
                             <h4><%= product.title %></h4>
                             <div class="m-cat"><%= categoryMap[product.categoryId] || 'Uncategorized' %></div>
+                            <div class="m-price"><%= product.price ? '₹' + product.price.toLocaleString('en-IN') : 'No price set' %></div>
 
-                            <form action="/product/delete/<%= product._id %>" method="POST"
-                                onsubmit="return confirm('Delete this product?');">
-                                <button type="submit" class="remove-btn">Delete</button>
-                            </form>
+                            <div style="display:flex; gap:8px;">
+
+                                <a href="/product/edit/<%= product._id %>" class="edit-btn">Edit</a>
+
+                                <form action="/product/delete/<%= product._id %>" method="POST"
+                                    onsubmit="return confirm('Delete this product?');" style="flex:1;">
+                                    <button type="submit" class="remove-btn">Delete</button>
+                                </form>
+
+                            </div>
                         </div>
 
                     </div>

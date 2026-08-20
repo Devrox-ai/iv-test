@@ -19,7 +19,9 @@ async function connectDB() {
         // db2 = client.db2("cotegary")
 
     } catch (err) {
-        console.log(err);
+        console.error("MongoDB connection FAILED:", err.message);
+        console.error("Check your .env values (MONGO_USERNAME, MONGO_PASSWORD, MONGO_DATABASE) and your Atlas Network Access (IP whitelist).");
+        process.exit(1); // stop the server instead of letting every route fail silently
     }
 }
 

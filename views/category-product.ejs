@@ -6,6 +6,65 @@
 <title><%= categoryName %> — Vastraa</title>
 
 <link rel="stylesheet" href="/css/theme.css">
+<script src="/js/theme.js"></script>
+
+<style>
+
+    .cat-hero{
+        background: linear-gradient(135deg, var(--wine-deep) 0%, var(--wine) 100%);
+        padding: 56px 20px 46px;
+        text-align: center;
+        color: #fff;
+    }
+
+    .cat-hero .eyebrow{
+        font-size: 12px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: var(--gold);
+    }
+
+    .cat-hero h1{
+        font-size: 44px;
+        font-weight: 500;
+        margin-top: 10px;
+        color: #fff;
+    }
+
+    .cat-hero p{
+        margin-top: 12px;
+        font-size: 14px;
+        color: #f0dfe6;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .cat-hero .breadcrumb{
+        margin-top: 18px;
+        font-size: 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #e3c9d1;
+    }
+
+    .cat-hero .breadcrumb a{ color: var(--gold); text-decoration: none; }
+
+    .cat-count{
+        width: 92%;
+        max-width: 1400px;
+        margin: 34px auto 0;
+        font-size: 13px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #8a7a86;
+    }
+
+    @media(max-width: 640px){
+        .cat-hero h1{ font-size: 30px; }
+    }
+
+</style>
 
 </head>
 
@@ -15,7 +74,7 @@
 
     <!-- PAGE HEADER -->
 
-    <div class="page-header">
+    <div class="cat-hero">
 
         <span class="eyebrow">Curated Collection</span>
 
@@ -28,6 +87,10 @@
         </div>
 
     </div>
+
+    <% if(products.length > 0){ %>
+        <div class="cat-count"><%= products.length %> product<%= products.length !== 1 ? 's' : '' %> in <%= categoryName %></div>
+    <% } %>
 
     <!-- PRODUCTS -->
 
@@ -45,15 +108,20 @@
                             <span class="tag">New</span>
                         <% } %>
 
-                        <div class="p-img">
+                        <a href="/product/view/<%= product._id %>" class="p-img">
                             <img src="/images/<%= product.image %>" alt="<%= product.title %>"
                                 onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
-                        </div>
+                        </a>
 
                         <div class="p-body">
 
-                            <h4><%= product.title %></h4>
+                            <a href="/product/view/<%= product._id %>" style="text-decoration:none; color:inherit;">
+                                <h4><%= product.title %></h4>
+                            </a>
                             <div class="p-meta">Premium Handcrafted</div>
+                            <% if(product.price){ %>
+                                <div class="p-price">₹<%= product.price.toLocaleString('en-IN') %></div>
+                            <% } %>
 
                             <form action="/product/cart/add/<%= product._id %>" method="POST">
                                 <button type="submit" class="cart-btn">Add To Cart</button>
