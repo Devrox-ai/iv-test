@@ -1,0 +1,192 @@
+<!-- WHATSAPP FLOATING CHAT WIDGET -->
+<style>
+    .wa-float-btn {
+        position: fixed;
+        right: 22px;
+        bottom: 22px;
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: #25D366;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+        cursor: pointer;
+        z-index: 99998;
+        transition: transform 0.2s ease;
+        border: none;
+    }
+    .wa-float-btn:hover { transform: scale(1.08); }
+    .wa-float-btn svg { width: 30px; height: 30px; }
+
+    .wa-pulse {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: #25D366;
+        opacity: 0.6;
+        animation: wa-pulse 2s infinite;
+        z-index: -1;
+    }
+    @keyframes wa-pulse {
+        0% { transform: scale(1); opacity: 0.55; }
+        100% { transform: scale(1.9); opacity: 0; }
+    }
+
+    .wa-chat-panel {
+        position: fixed;
+        right: 22px;
+        bottom: 92px;
+        width: 320px;
+        max-width: calc(100vw - 40px);
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+        overflow: hidden;
+        z-index: 99999;
+        display: none;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    .wa-chat-panel.open { display: block; animation: wa-fade-in 0.25s ease; }
+    @keyframes wa-fade-in {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .wa-chat-header {
+        background: #075E54;
+        color: #fff;
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .wa-chat-header .wa-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #5C1A33;
+        color: #F8E7D1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+    .wa-chat-header h4 { margin: 0; font-size: 15px; font-weight: 600; }
+    .wa-chat-header p { margin: 2px 0 0; font-size: 12px; opacity: 0.85; }
+    .wa-chat-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+        line-height: 1;
+        opacity: 0.85;
+    }
+
+    .wa-chat-body {
+        background: #ECE5DD;
+        padding: 16px;
+        min-height: 120px;
+    }
+    .wa-bubble {
+        background: #fff;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: #303030;
+        max-width: 90%;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.08);
+        margin-bottom: 10px;
+    }
+    .wa-quick-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 4px;
+    }
+    .wa-quick-btn {
+        background: #fff;
+        border: 1px solid #25D366;
+        color: #075E54;
+        border-radius: 20px;
+        padding: 9px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+    }
+    .wa-quick-btn:hover { background: #f0fdf5; }
+
+    .wa-chat-footer {
+        padding: 14px 16px;
+        background: #fff;
+        text-align: center;
+    }
+    .wa-chat-footer a {
+        display: block;
+        background: #25D366;
+        color: #fff;
+        text-decoration: none;
+        padding: 11px;
+        border-radius: 24px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+    .wa-chat-footer a:hover { background: #1ebe5b; }
+</style>
+
+<button class="wa-float-btn" id="waFloatBtn" aria-label="Chat on WhatsApp">
+    <span class="wa-pulse"></span>
+    <svg viewBox="0 0 32 32" fill="#fff" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.34.653 4.523 1.786 6.39L4 29l7.81-1.746A11.93 11.93 0 0 0 16.001 27C22.63 27 28 21.627 28 15S22.63 3 16.001 3Zm0 21.818a9.77 9.77 0 0 1-4.98-1.362l-.357-.213-4.635 1.036 1.06-4.512-.234-.37A9.77 9.77 0 0 1 6.182 15c0-5.42 4.4-9.818 9.819-9.818S25.818 9.58 25.818 15 21.42 24.818 16.001 24.818Zm5.386-7.34c-.294-.148-1.744-.86-2.014-.958-.27-.099-.467-.148-.664.148-.196.295-.762.958-.934 1.155-.172.196-.344.221-.638.074-.294-.148-1.243-.458-2.367-1.46-.875-.78-1.466-1.744-1.638-2.038-.172-.295-.018-.454.13-.601.133-.133.294-.344.442-.516.147-.172.196-.295.294-.492.098-.196.049-.369-.025-.516-.074-.148-.664-1.6-.91-2.191-.24-.577-.484-.499-.664-.508l-.565-.01c-.196 0-.516.074-.786.369-.27.295-1.03 1.006-1.03 2.454s1.055 2.847 1.202 3.043c.147.196 2.077 3.171 5.032 4.446.703.303 1.251.484 1.679.62.705.224 1.347.192 1.855.117.566-.084 1.744-.713 1.99-1.402.246-.688.246-1.278.172-1.402-.073-.123-.27-.196-.564-.344Z"/>
+    </svg>
+</button>
+
+<div class="wa-chat-panel" id="waChatPanel">
+    <div class="wa-chat-header">
+        <div class="wa-avatar">V</div>
+        <div>
+            <h4>Vastraa</h4>
+            <p>Typically replies within a few minutes</p>
+        </div>
+        <button class="wa-chat-close" id="waChatClose" aria-label="Close chat">&times;</button>
+    </div>
+    <div class="wa-chat-body">
+        <div class="wa-bubble">👋 Hi there! How can we help you today?</div>
+        <div class="wa-quick-options">
+            <a class="wa-quick-btn" href="https://wa.me/917862083025?text=Hi%2C%20I%20have%20a%20question%20about%20an%20order." target="_blank" rel="noopener">🧾 Order related query</a>
+            <a class="wa-quick-btn" href="https://wa.me/917862083025?text=Hi%2C%20I%20need%20styling%20help%20choosing%20an%20outfit." target="_blank" rel="noopener">👗 Styling help</a>
+            <a class="wa-quick-btn" href="https://wa.me/917862083025?text=Hi%2C%20I%20have%20a%20general%20question." target="_blank" rel="noopener">💬 Something else</a>
+        </div>
+    </div>
+    <div class="wa-chat-footer">
+        <a href="https://wa.me/917862083025" target="_blank" rel="noopener">Continue on WhatsApp</a>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var btn = document.getElementById('waFloatBtn');
+        var panel = document.getElementById('waChatPanel');
+        var closeBtn = document.getElementById('waChatClose');
+        if (!btn || !panel) return;
+
+        btn.addEventListener('click', function () {
+            panel.classList.toggle('open');
+        });
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function () {
+                panel.classList.remove('open');
+            });
+        }
+    })();
+</script>

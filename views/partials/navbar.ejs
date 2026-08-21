@@ -43,10 +43,11 @@
                     <% } %>
                 </a>
 
+                <a href="/ai/chat" class="auth-link">AI Chat</a>
                 <% if(typeof user !== 'undefined' && user){ %>
                     <a href="/user/logout" class="auth-link">Logout</a>
                 <% } else { %>
-                    <a href="/user/login" class="auth-link">Login</a>
+                    <a href="/user/login" class="auth-link">Account</a>
                 <% } %>
 
             </div>
@@ -81,10 +82,11 @@
 
             <a href="/product/cart">Cart<% if(typeof cartCount !== 'undefined' && cartCount > 0){ %> (<%= cartCount %>)<% } %></a>
 
+            <a href="/ai/chat">AI Chat</a>
             <% if(typeof user !== 'undefined' && user){ %>
                 <a href="/user/logout">Logout</a>
             <% } else { %>
-                <a href="/user/login">Login</a>
+                <a href="/user/login">Account</a>
             <% } %>
 
         </div>

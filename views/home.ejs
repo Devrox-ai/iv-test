@@ -9,7 +9,163 @@
 <script src="/js/theme.js"></script>
 
 <style>
+    /* --- DYNAMIC MEGA MENU NAVBAR --- */
+    .mega-nav-wrapper {
+        position: relative;
+        background: #5C1A33;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        z-index: 9999;
+    }
 
+    .main-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        padding: 0 20px;
+        list-style: none;
+        margin: 0;
+    }
+
+    .nav-item {
+        position: static;
+        padding: 12px 0;
+    }
+
+    .nav-link {
+        text-decoration: none;
+        color: #F8E7D1;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 8px 12px;
+        transition: all 0.2s ease;
+    }
+
+    .nav-link.highlight {
+        background: #C7962F;
+        color: #3E0F22;
+        padding: 8px 16px;
+        border-radius: 3px;
+        font-weight: 700;
+    }
+
+    .nav-item:hover .nav-link {
+        color: #C7962F;
+    }
+
+    .nav-link.highlight:hover {
+        background: #e5ad37;
+        color: #3E0F22;
+    }
+
+    /* MEGA DROPDOWN BOX */
+    .mega-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: #FAF7F2;
+        border-top: 2px solid #C7962F;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        display: none;
+        padding: 25px 40px;
+        box-sizing: border-box;
+        z-index: 10000;
+    }
+
+    .nav-item:hover .mega-dropdown {
+        display: flex;
+        gap: 30px;
+    }
+
+    /* LEFT SIDEBAR FILTERS */
+    .mega-left-sidebar {
+        width: 180px;
+        border-right: 1px solid #e2d9cd;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding-right: 20px;
+        flex-shrink: 0;
+    }
+
+    .sidebar-tab {
+        background: none;
+        border: none;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #555555;
+        cursor: pointer;
+        padding: 6px 0;
+        transition: color 0.2s;
+    }
+
+    .sidebar-tab.active, .sidebar-tab:hover {
+        color: #5C1A33;
+        border-bottom: 2px solid #C7962F;
+        width: fit-content;
+    }
+
+    /* RIGHT CONTENT AREA */
+    .mega-right-content {
+        flex-grow: 1;
+    }
+
+    .tab-panel {
+        display: none;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 15px;
+    }
+
+    .tab-panel.active {
+        display: grid;
+    }
+
+    /* PRODUCT CARDS (IMAGE CUTTING FIX) */
+    .mega-card {
+        text-decoration: none;
+        color: #333333;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .mega-card-img {
+        width: 100%;
+        height: 220px;
+        object-fit: contain; /* Photo poori dikhegi bina kate */
+        background: #f2ebe1;
+        border-radius: 4px;
+        margin-bottom: 8px;
+        transition: transform 0.3s;
+    }
+
+    .mega-card:hover .mega-card-img {
+        transform: scale(1.03);
+    }
+
+    .mega-card h5 {
+        font-size: 12px;
+        font-weight: 600;
+        margin: 0;
+        text-transform: capitalize;
+        color: #333;
+    }
+
+    .mega-card p {
+        font-size: 11px;
+        color: #C7962F;
+        font-weight: 700;
+        margin: 4px 0 0 0;
+    }
+
+    /* --- HERO STYLES --- */
     .hero{
         width: 92%;
         max-width: 1400px;
@@ -25,8 +181,8 @@
         font-size: 12px;
         letter-spacing: 4px;
         text-transform: uppercase;
-        color: var(--gold);
-        border-bottom: 1px solid var(--gold);
+        color: #C7962F;
+        border-bottom: 1px solid #C7962F;
         padding-bottom: 6px;
         margin-bottom: 22px;
     }
@@ -35,10 +191,10 @@
         font-size: 68px;
         line-height: 1.05;
         font-weight: 500;
-        color: var(--wine-deep);
+        color: #3E0F22;
     }
 
-    .hero-copy h1 em{ font-style: italic; color: var(--wine); }
+    .hero-copy h1 em{ font-style: italic; color: #5C1A33; }
 
     .hero-copy p{
         margin-top: 22px;
@@ -51,7 +207,7 @@
     .hero-btn{
         display: inline-block;
         margin-top: 32px;
-        background: var(--wine);
+        background: #5C1A33;
         color: white;
         text-decoration: none;
         padding: 15px 34px;
@@ -62,7 +218,7 @@
         transition: 0.3s;
     }
 
-    .hero-btn:hover{ background: var(--wine-deep); transform: translateY(-2px); }
+    .hero-btn:hover{ background: #3E0F22; transform: translateY(-2px); }
 
     .hero-motif{
         position: relative;
@@ -74,12 +230,170 @@
 
     .hero-motif svg{ width: 100%; height: 100%; }
 
-    @media(max-width: 900px){
-        .hero{ grid-template-columns: 1fr; }
-        .hero-motif{ max-width: 260px; margin: auto; }
-        .hero-copy h1{ font-size: 46px; }
+    /* --- 3D SPOTLIGHT CAROUSEL --- */
+    .carousel-section {
+        margin: 60px 0;
+        text-align: center;
+        overflow: hidden;
     }
 
+    .carousel-container {
+        position: relative;
+        width: 100%;
+        max-width: 1000px;
+        height: 480px;
+        margin: 40px auto 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .carousel-track {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .c-card {
+        position: absolute;
+        width: 260px;
+        height: 420px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .c-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .c-card .c-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.85));
+        padding: 20px 15px 15px;
+        color: #fff;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .c-card.active .c-info {
+        opacity: 1;
+    }
+
+    .c-info h4 {
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 10px;
+    }
+
+    .c-info .v-btn {
+        display: inline-block;
+        background: #000;
+        color: #fff;
+        padding: 6px 20px;
+        font-size: 11px;
+        text-transform: uppercase;
+        text-decoration: none;
+        border-radius: 2px;
+        letter-spacing: 1px;
+    }
+
+    .c-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 42px;
+        height: 42px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: #333;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transition: 0.3s;
+    }
+
+    .c-nav:hover { background: #000; color: #fff; }
+    .c-nav.prev { left: 10px; }
+    .c-nav.next { right: 10px; }
+
+    /* --- HORIZONTAL SLIDER --- */
+    .slider-wrapper {
+        position: relative;
+        width: 100%;
+        padding: 0 40px;
+        box-sizing: border-box;
+    }
+
+    .slider-container {
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        scrollbar-width: none;
+        padding: 10px 0;
+        scroll-snap-type: x mandatory;
+    }
+
+    .slider-container::-webkit-scrollbar { display: none; }
+
+    .slider-container .p-card,
+    .slider-container .cat-card {
+        flex: 0 0 calc(25% - 15px);
+        min-width: 240px;
+        scroll-snap-align: start;
+    }
+
+    .slider-btn {
+        position: absolute;
+        top: 45%;
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        cursor: pointer;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: #111;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        transition: all 0.2s ease;
+    }
+
+    .slider-btn:hover { background: #000000; color: #ffffff; border-color: #000000; }
+    .slider-btn.left { left: 0px; }
+    .slider-btn.right { right: 0px; }
+
+    @media(max-width: 768px){
+        .hero{ grid-template-columns: 1fr; }
+        .slider-container .p-card, .slider-container .cat-card { flex: 0 0 calc(50% - 10px); }
+        .slider-wrapper { padding: 0 20px; }
+    }
 </style>
 
 </head>
@@ -87,6 +401,100 @@
 <body>
 
     <%- include('partials/navbar') %>
+
+    <!-- MEGA MENU NAVBAR -->
+     <!-- DYNAMIC MEGA MENU NAVBAR -->
+    <div class="mega-nav-wrapper">
+        <ul class="main-nav">
+
+            <!-- READY TO SHIP BUTTON -->
+            <li class="nav-item">
+                <a href="/product/home?readyToShip=true" class="nav-link highlight">READY TO SHIP</a>
+            </li>
+
+            <!-- DYNAMIC CATEGORIES IN NAVBAR -->
+            <% if (categories && categories.length > 0) { %>
+                <% categories.forEach(function(category) { %>
+                    
+                    <li class="nav-item">
+                        <a href="/product/category/<%= category._id %>" class="nav-link">
+                            <%= category.name %>
+                        </a>
+
+                        <!-- Mega Dropdown on Hover -->
+                        <div class="mega-dropdown">
+                            
+                            <!-- Left Sidebar Filters -->
+                            <div class="mega-left-sidebar">
+                                <button class="sidebar-tab active" onmouseenter="switchTab(event, 'all-<%= category._id %>')">All Products</button>
+                                <button class="sidebar-tab" onmouseenter="switchTab(event, 'new-<%= category._id %>')">New Arrivals</button>
+                                <button class="sidebar-tab" onmouseenter="switchTab(event, 'popular-<%= category._id %>')">Best Sellers</button>
+                            </div>
+
+                            <!-- Right Content area containing matching products -->
+                            <div class="mega-right-content">
+
+                                <!-- All Products Panel -->
+                                <div id="all-<%= category._id %>" class="tab-panel active">
+                                    <% 
+                                        var catProducts = displayProducts.filter(function(p){ 
+                                            return p.category && p.category.toString() === category._id.toString(); 
+                                        }).slice(0, 5); 
+                                    %>
+
+                                    <% if(catProducts.length > 0) { %>
+                                        <% catProducts.forEach(function(product) { %>
+                                            <a href="/product/view/<%= product._id %>" class="mega-card">
+                                                <img src="/images/<%= product.image %>" class="mega-card-img" onerror="this.src='https://via.placeholder.com/150x200?text=Vastraa'">
+                                                <h5><%= product.title %></h5>
+                                                <% if(product.price) { %>
+                                                    <p>₹<%= product.price.toLocaleString('en-IN') %></p>
+                                                <% } %>
+                                            </a>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <a href="/product/category/<%= category._id %>" class="mega-card">
+                                            <img src="/images/<%= category.image %>" class="mega-card-img" onerror="this.src='https://via.placeholder.com/150x200?text=<%= category.name %>'">
+                                            <h5>Explore All <%= category.name %></h5>
+                                        </a>
+                                    <% } %>
+                                </div>
+
+                                <!-- New Arrivals Panel -->
+                                <div id="new-<%= category._id %>" class="tab-panel">
+                                    <% if(catProducts.length > 0) { %>
+                                        <% catProducts.slice(0, 2).forEach(function(product) { %>
+                                            <a href="/product/view/<%= product._id %>" class="mega-card">
+                                                <img src="/images/<%= product.image %>" class="mega-card-img" onerror="this.src='https://via.placeholder.com/150x200'">
+                                                <h5><%= product.title %></h5>
+                                            </a>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <p style="grid-column: span 5; font-size:12px; color:#666;">New items arriving soon!</p>
+                                    <% } %>
+                                </div>
+
+                                <!-- Best Sellers Panel -->
+                                <div id="popular-<%= category._id %>" class="tab-panel">
+                                    <% if(catProducts.length > 0) { %>
+                                        <% catProducts.slice(-2).forEach(function(product) { %>
+                                            <a href="/product/view/<%= product._id %>" class="mega-card">
+                                                <img src="/images/<%= product.image %>" class="mega-card-img" onerror="this.src='https://via.placeholder.com/150x200'">
+                                                <h5><%= product.title %></h5>
+                                            </a>
+                                        <% }); %>
+                                    <% } %>
+                                </div>
+
+                            </div>
+                        </div>
+                    </li>
+
+                <% }); %>
+            <% } %>
+
+        </ul>
+    </div>
 
     <!-- HERO -->
 
@@ -126,7 +534,41 @@
 
     </div>
 
-    <!-- TRENDING PRODUCTS -->
+    <!-- 3D TRENDING STYLES CAROUSEL -->
+
+    <div class="carousel-section">
+
+        <div class="section-head">
+            <span class="eyebrow">Spotlight</span>
+            <h2>Trending Styles</h2>
+            <div class="rule"></div>
+        </div>
+
+        <% if(displayProducts && displayProducts.length > 0){ %>
+
+            <div class="carousel-container">
+                <button class="c-nav prev" id="cPrev">&#10094;</button>
+
+                <div class="carousel-track" id="cTrack">
+                    <% displayProducts.forEach(function(product, i){ %>
+                        <div class="c-card" data-index="<%= i %>">
+                            <img src="/images/<%= product.image %>" alt="<%= product.title %>" onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
+                            <div class="c-info">
+                                <h4><%= product.title %></h4>
+                                <a href="/product/view/<%= product._id %>" class="v-btn">View</a>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+
+                <button class="c-nav next" id="cNext">&#10095;</button>
+            </div>
+
+        <% } %>
+
+    </div>
+
+    <!-- TRENDING PRODUCTS (HORIZONTAL SLIDER WITH 4 CARDS AT A TIME) -->
 
     <div class="section" id="trending">
 
@@ -141,41 +583,48 @@
 
         <% if(displayProducts.length > 0){ %>
 
-            <div class="product-grid">
+            <div class="slider-wrapper">
+                <% if(displayProducts.length > 4){ %>
+                    <button class="slider-btn left" onclick="slideScroll('prod-slider', -300)">&#10094;</button>
+                    <button class="slider-btn right" onclick="slideScroll('prod-slider', 300)">&#10095;</button>
+                <% } %>
 
-                <% (filterCategoryName ? displayProducts : displayProducts.slice(0, 8)).forEach(function(product, i){ %>
+                <div class="slider-container" id="prod-slider">
 
-                    <div class="p-card">
+                    <% displayProducts.forEach(function(product, i){ %>
 
-                        <% if(!filterCategoryName && i < 3){ %>
-                            <span class="tag">Best Seller</span>
-                        <% } %>
+                        <div class="p-card">
 
-                        <a href="/product/view/<%= product._id %>" class="p-img">
-                            <img src="/images/<%= product.image %>" alt="<%= product.title %>"
-                                onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
-                        </a>
-
-                        <div class="p-body">
-
-                            <a href="/product/view/<%= product._id %>" style="text-decoration:none; color:inherit;">
-                                <h4><%= product.title %></h4>
-                            </a>
-                            <div class="p-meta">Premium Handcrafted</div>
-                            <% if(product.price){ %>
-                                <div class="p-price">₹<%= product.price.toLocaleString('en-IN') %></div>
+                            <% if(!filterCategoryName && i < 3){ %>
+                                <span class="tag">Best Seller</span>
                             <% } %>
 
-                            <form action="/product/cart/add/<%= product._id %>" method="POST">
-                                <button type="submit" class="cart-btn">Add To Cart</button>
-                            </form>
+                            <a href="/product/view/<%= product._id %>" class="p-img">
+                                <img src="/images/<%= product.image %>" alt="<%= product.title %>"
+                                    onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
+                            </a>
+
+                            <div class="p-body">
+
+                                <a href="/product/view/<%= product._id %>" style="text-decoration:none; color:inherit;">
+                                    <h4><%= product.title %></h4>
+                                </a>
+                                <div class="p-meta">Premium Handcrafted</div>
+                                <% if(product.price){ %>
+                                    <div class="p-price">₹<%= product.price.toLocaleString('en-IN') %></div>
+                                <% } %>
+
+                                <form action="/product/cart/add/<%= product._id %>" method="POST">
+                                    <button type="submit" class="cart-btn">Add To Cart</button>
+                                </form>
+
+                            </div>
 
                         </div>
 
-                    </div>
+                    <% }) %>
 
-                <% }) %>
-
+                </div>
             </div>
 
         <% } else { %>
@@ -189,7 +638,18 @@
 
     </div>
 
-    <!-- CATEGORY SHOWCASE -->
+    <!-- SHOP WITH A STYLIST BANNER -->
+
+    <div class="stylist-banner" style="position: relative; width: 100%; min-height: 380px; display: flex; align-items: center; justify-content: center; text-align: center; color: #ffffff; margin: 60px 0; padding: 40px 20px; background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/images/Buy%20Ethnic%20Summer%20Dresses%20for%20Men%20%26%20Women%20Online_%20KALKI%20Fashion%20India_files/Rock_Your_Wedding_In_These__Made_For_Each_Other_Bride_And_Groom.webp') center/cover no-repeat;">
+        <div class="stylist-content">
+            <h3 style="font-size: 28px; font-weight: 400; letter-spacing: 1px; margin-bottom: 12px; font-family: serif;">Shop With A Stylist</h3>
+            <h2 style="font-size: 34px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 14px; font-family: serif;">Expert Advice, Just A Video Call Away.</h2>
+            <p style="font-size: 14px; letter-spacing: 0.5px; margin-bottom: 28px; opacity: 0.9;">Our Stylists speak English, Hindi, Gujarati & Marathi</p>
+            <a href="https://wa.me/917862083025" target="_blank" class="stylist-btn" style="display: inline-block; background: #ffffff; color: #111111; padding: 12px 32px; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; border-radius: 2px; transition: 0.3s ease;">Start Call Now</a>
+        </div>
+    </div>
+
+    <!-- CATEGORY SHOWCASE (HORIZONTAL SLIDER WITH 4 CARDS AT A TIME) -->
 
     <div class="section">
 
@@ -201,23 +661,30 @@
 
         <% if(categories.length > 0){ %>
 
-            <div class="category-box">
+            <div class="slider-wrapper">
+                <% if(categories.length > 4){ %>
+                    <button class="slider-btn left" onclick="slideScroll('cat-slider', -300)">&#10094;</button>
+                    <button class="slider-btn right" onclick="slideScroll('cat-slider', 300)">&#10095;</button>
+                <% } %>
 
-                <% categories.forEach(function(category){ %>
+                <div class="slider-container" id="cat-slider">
 
-                    <a href="/product/category/<%= category._id %>" class="cat-card">
+                    <% categories.forEach(function(category){ %>
 
-                        <div class="cat-img">
-                            <img src="/images/<%= category.image %>" alt="<%= category.name %>"
-                                onerror="imgFallback(this, '<%= category.name.replace(/'/g, '') %>')">
-                        </div>
+                        <a href="/product/category/<%= category._id %>" class="cat-card">
 
-                        <h3><%= category.name %></h3>
+                            <div class="cat-img">
+                                <img src="/images/<%= category.image %>" alt="<%= category.name %>"
+                                    onerror="imgFallback(this, '<%= category.name.replace(/'/g, '') %>')">
+                            </div>
 
-                    </a>
+                            <h3><%= category.name %></h3>
 
-                <% }) %>
+                        </a>
 
+                    <% }) %>
+
+                </div>
             </div>
 
         <% } else { %>
@@ -315,7 +782,108 @@
 
     <%- include('partials/footer') %>
 
+    <%- include('partials/whatsapp-widget') %>
+
     <%- include('partials/login-toast') %>
+
+    <!-- SCRIPTS -->
+    <script>
+        // Mega Menu Tabs Switcher
+        function switchTab(event, panelId) {
+            const sidebar = event.currentTarget.parentElement;
+            const rightContent = sidebar.nextElementSibling;
+
+            sidebar.querySelectorAll('.sidebar-tab').forEach(tab => tab.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            rightContent.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+            const targetPanel = rightContent.querySelector('#' + panelId);
+            if(targetPanel) {
+                targetPanel.classList.add('active');
+            }
+        }
+
+        // Horizontal Scroll Function
+        function slideScroll(elementId, distance) {
+            const container = document.getElementById(elementId);
+            if (container) {
+                container.scrollBy({
+                    left: distance,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        // 3D Spotlight Carousel Script
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.c-card');
+            const prevBtn = document.getElementById('cPrev');
+            const nextBtn = document.getElementById('cNext');
+            if(!cards.length) return;
+
+            let currentIndex = 0;
+
+            function updateCarousel() {
+                cards.forEach((card, i) => {
+                    card.classList.remove('active');
+                    let offset = i - currentIndex;
+
+                    if (offset < -Math.floor(cards.length / 2)) offset += cards.length;
+                    if (offset > Math.floor(cards.length / 2)) offset -= cards.length;
+
+                    if (offset === 0) {
+                        card.style.transform = 'translateX(0) scale(1.15)';
+                        card.style.zIndex = '5';
+                        card.style.opacity = '1';
+                        card.classList.add('active');
+                    } else if (offset === 1) {
+                        card.style.transform = 'translateX(180px) scale(0.9)';
+                        card.style.zIndex = '4';
+                        card.style.opacity = '0.8';
+                    } else if (offset === -1) {
+                        card.style.transform = 'translateX(-180px) scale(0.9)';
+                        card.style.zIndex = '4';
+                        card.style.opacity = '0.8';
+                    } else if (offset === 2) {
+                        card.style.transform = 'translateX(320px) scale(0.75)';
+                        card.style.zIndex = '3';
+                        card.style.opacity = '0.5';
+                    } else if (offset === -2) {
+                        card.style.transform = 'translateX(-320px) scale(0.75)';
+                        card.style.zIndex = '3';
+                        card.style.opacity = '0.5';
+                    } else {
+                        card.style.transform = offset > 0 ? 'translateX(450px) scale(0.6)' : 'translateX(-450px) scale(0.6)';
+                        card.style.zIndex = '1';
+                        card.style.opacity = '0';
+                    }
+                });
+            }
+
+            if(nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % cards.length;
+                    updateCarousel();
+                });
+            }
+
+            if(prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+                    updateCarousel();
+                });
+            }
+
+            cards.forEach((card, i) => {
+                card.addEventListener('click', () => {
+                    currentIndex = i;
+                    updateCarousel();
+                });
+            });
+
+            updateCarousel();
+        });
+    </script>
 
 </body>
 </html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account — Vastraa</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Poppins,sans-serif}
+body{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at top,#4b1933,#160914 65%);color:#fff}
+.auth{width:min(440px,100%);padding:34px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.09);backdrop-filter:blur(18px);border-radius:26px;box-shadow:0 25px 70px rgba(0,0,0,.35)}
+.brand{text-align:center;letter-spacing:5px;font-size:28px;font-weight:600}.sub{text-align:center;color:#d9cbd2;font-size:13px;margin:8px 0 28px}
+h2{font-size:21px;margin-bottom:8px}.hint{font-size:12px;color:#cdbbc5;margin-bottom:20px;line-height:1.6}
+label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#e6d9df;margin:14px 0 7px}
+input{width:100%;padding:14px 15px;border:1px solid rgba(255,255,255,.15);border-radius:13px;background:rgba(255,255,255,.1);color:#fff;outline:none}
+input:focus{border-color:#d7a4b9}.btn{width:100%;border:0;border-radius:14px;padding:14px;margin-top:20px;background:linear-gradient(135deg,#d6a0b7,#7f294f);color:#fff;font-weight:600;cursor:pointer}
+.error{background:#ffebee;color:#8a1c2a;padding:11px 13px;border-radius:10px;font-size:12px;margin-bottom:15px}
+.back{text-align:center;margin-top:17px;font-size:12px}.back a{color:#efbfd2;text-decoration:none}
+.check{display:flex;gap:9px;align-items:flex-start;margin-top:14px;font-size:11px;color:#d9cbd2}.check input{width:auto;margin-top:3px}
+.user-pill{display:inline-block;padding:7px 11px;border-radius:30px;background:rgba(255,255,255,.1);font-size:12px;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="auth">
+  <div class="brand">VASTRAA</div>
+  <div class="sub">Your account • orders • updates</div>
+
+  <% if(error){ %><div class="error"><%= error %></div><% } %>
+
+  <% if(step === "start"){ %>
+    <h2>Start with your details</h2>
+    <p class="hint">Enter your name and mobile number. If the number already exists, we'll ask for your password. Otherwise, you can create your account on this same page.</p>
+    <form action="/user/continue" method="POST">
+      <input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '' %>">
+      <label>Full Name</label>
+      <input name="name" value="<%= name %>" placeholder="Your name" required>
+      <label>Mobile / WhatsApp Number</label>
+      <input name="phone" value="<%= phone %>" placeholder="9876543210" inputmode="tel" required>
+      <button class="btn">Continue</button>
+    </form>
+  <% } %>
+
+  <% if(step === "password"){ %>
+    <span class="user-pill">📱 <%= phone %></span>
+    <h2>Welcome back, <%= name %></h2>
+    <p class="hint">This mobile number is already registered. Enter your password to continue.</p>
+    <form action="/user/login" method="POST">
+      <input type="hidden" name="name" value="<%= name %>">
+      <input type="hidden" name="phone" value="<%= phone %>">
+      <input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '' %>">
+      <label>Password</label>
+      <input name="password" type="password" placeholder="Enter password" required autofocus>
+      <button class="btn">Login</button>
+    </form>
+  <% } %>
+
+  <% if(step === "register"){ %>
+    <span class="user-pill">✨ New account</span>
+    <h2>Create your Vastraa account</h2>
+    <p class="hint">Your name and mobile number are already filled from the previous step.</p>
+    <form action="/user/register" method="POST">
+      <input type="hidden" name="name" value="<%= name %>">
+      <input type="hidden" name="phone" value="<%= phone %>">
+      <input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '' %>">
+      <label>Password</label>
+      <input name="password" type="password" placeholder="Create a password" minlength="4" required>
+      <label class="check"><input type="checkbox" name="whatsappOptIn" checked> <span>I agree to receive order updates on WhatsApp for this store.</span></label>
+      <button class="btn">Create Account & Continue</button>
+    </form>
+  <% } %>
+
+  <div class="back"><a href="/product/home">← Back to store</a></div>
+</div>
+</body>
+</html>

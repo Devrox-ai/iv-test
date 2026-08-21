@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Dashboard — <%= shopName %></title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f2f4;color:#30232b;font-family:Arial,sans-serif}.top{background:#341421;color:#fff;padding:20px 5%;display:flex;justify-content:space-between;align-items:center;gap:15px}.top h1{margin:0;font-size:24px}.top a{color:#fff;text-decoration:none}.wrap{width:92%;max-width:1400px;margin:25px auto}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.stat,.card{background:#fff;border-radius:15px;padding:20px;box-shadow:0 5px 20px #3d193010}.stat small{color:#877681}.stat strong{display:block;font-size:28px;margin-top:8px;color:#5f1838}.orders{margin-top:20px;display:grid;gap:15px}.order{background:#fff;border-radius:15px;padding:20px}.orderhead{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid #eee;padding-bottom:13px}.customer strong{font-size:17px}.muted{color:#877681;font-size:12px}.items{margin:15px 0}.item{display:flex;justify-content:space-between;padding:5px 0}.total{font-size:18px;font-weight:700;border-top:1px solid #eee;padding-top:10px}.actions{display:grid;grid-template-columns:170px 1fr auto;gap:8px;margin-top:15px}.actions select,.actions input,.actions button{padding:10px;border:1px solid #ddd;border-radius:9px}.actions button{background:#641c3d;color:#fff;border:0;cursor:pointer}.bill{margin-top:9px;background:#2d7d46!important}.tag{padding:5px 9px;border-radius:20px;background:#efe3e8;color:#641c3d;font-size:11px}.empty{padding:40px;text-align:center;color:#887}.flash{background:#e9f8ed;padding:10px 13px;border-radius:9px;margin-bottom:15px}
+@media(max-width:800px){.stats{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}.orderhead{flex-direction:column}}
+</style></head>
+<body>
+<div class="top"><h1><%= shopName %> Admin</h1><div><a href="/product/home">Store</a> &nbsp; | &nbsp; <a href="/admin/logout">Logout</a></div></div>
+<div class="wrap">
+<% if(typeof updated !== 'undefined' || typeof bill !== 'undefined'){ %><div class="flash">Action completed.</div><% } %>
+<div class="stats">
+<div class="stat"><small>Total Orders</small><strong><%= orders.length %></strong></div>
+<div class="stat"><small>Total Customers</small><strong><%= users.length %></strong></div>
+<div class="stat"><small>Products</small><strong><%= products.length %></strong></div>
+<div class="stat"><small>Sales</small><strong>₹<%= Number(totalSales).toLocaleString('en-IN') %></strong></div>
+</div>
+<div class="orders">
+<% orders.forEach(function(order){ const u=userMap[order.userId ? order.userId.toString() : ""]; %>
+<div class="order">
+<div class="orderhead"><div class="customer"><strong><%= u ? u.name : "Unknown User" %></strong><div class="muted">📱 <%= u ? (u.phone || "No phone") : "No phone" %> &nbsp; • &nbsp; Order <%= order._id %></div></div><div><span class="tag"><%= order.status || "paid" %></span><div class="muted" style="margin-top:6px"><%= order.createdAt ? new Date(order.createdAt).toLocaleString('en-IN') : "" %></div></div></div>
+<div class="items"><% (order.items || []).forEach(function(item){ %><div class="item"><span><%= item.title %></span><span>₹<%= Number(item.price||0).toLocaleString('en-IN') %></span></div><% }) %></div>
+<div class="total">Total: ₹<%= Number(order.total||0).toLocaleString('en-IN') %></div>
+<form class="actions" method="POST" action="/admin/orders/<%= order._id %>/update">
+<select name="status"><% ["confirmed","processing","packing started","ready to dispatch","dispatched","delivered","cancelled"].forEach(function(s){ %><option <%= String(order.status||"").toLowerCase()===s ? "selected" : "" %>><%= s %></option><% }) %></select>
+<input name="message" placeholder="Message to customer e.g. Packing started, 2 days...">
+<button>Update + WhatsApp</button>
+</form>
+<form method="POST" action="/admin/orders/<%= order._id %>/send-bill"><button class="actions bill" style="width:100%">Send Bill on WhatsApp</button></form>
+</div>
+<% }) %>
+<% if(!orders.length){ %><div class="card empty">No orders yet.</div><% } %>
+</div>
+</div>
+</body></html>

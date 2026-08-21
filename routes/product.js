@@ -5,6 +5,7 @@ const upload = require("../middleware/upload");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
+const { sendWhatsAppText, orderBillText } = require("../services/whatsapp");
 const router = express.Router();
 
 // RAZORPAY IS OPTIONAL — the store works fine with the built-in Test Payment
@@ -374,41 +375,8 @@ router.post("/update/:id", (req, res) => {
 
 });
 
-router.get("/manage-orders", async (req, res) => {
-    try {
-        const db = getDB();
-        const ordersCollection = db.collection("orders");
-        const usersCollection = db.collection("users");
-
-        // Fetch all orders sorted by latest date
-        const rawOrders = await ordersCollection.find({}).sort({ createdAt: -1 }).toArray();
-
-        // Safe Fallback: Array validation on items
-        const orders = rawOrders.map(order => ({
-            ...order,
-            items: Array.isArray(order.items) ? order.items : [],
-            total: order.total || 0
-        }));
-
-        // Fetch user information to build userMap
-        const users = await usersCollection.find({}).toArray();
-        const userMap = {};
-        
-        users.forEach(u => {
-            if (u._id) {
-                userMap[u._id.toString()] = u.name || u.username || u.email || "Unknown User";
-            }
-        });
-
-        res.render("manage-orders", {
-            orders: orders,
-            userMap: userMap
-        });
-
-    } catch (error) {
-        console.error("Error fetching manage-orders:", error);
-        res.status(500).send("Internal Server Error: " + error.message);
-    }
+router.get("/manage-orders", (req, res) => {
+    res.redirect("/admin/dashboard");
 });
 
 // DELETE A PRODUCT (removes DB entry + its uploaded image file)
@@ -493,29 +461,6 @@ router.post("/category/delete/:id", async (req, res) => {
 });
 
 
-
-// MANAGE ORDERS — SEE WHO ORDERED WHAT (ADMIN VIEW)
-router.get("/manage-orders", async (req, res) => {
-
-    const db = getDB();
-
-    const orderCollection = db.collection("orders");
-    const userCollection = db.collection("users");
-
-    const orders = await orderCollection.find({}).sort({ createdAt: -1 }).toArray();
-    const users = await userCollection.find({}).toArray();
-
-    const userMap = {};
-    users.forEach(u => { userMap[u._id.toString()] = u.name; });
-
-    res.render("manage-orders", {
-
-        orders: orders,
-        userMap: userMap
-
-    });
-
-});
 
 
 router.get("/cart", requireLogin, async (req, res) => {
@@ -664,6 +609,12 @@ router.post("/checkout/fake-pay", requireLogin, async (req, res) => {
         userId: req.session.user._id
     });
 
+    const savedOrder = await orderCollection.findOne({ _id: orderResult.insertedId });
+    if (req.session.user.phone && req.session.user.whatsappOptIn !== false) {
+        sendWhatsAppText(req.session.user.phone, orderBillText(savedOrder, req.session.user))
+            .catch(err => console.error("Automatic WhatsApp bill failed:", err));
+    }
+
     res.json({
         success: true,
         redirect: "/product/order-success/" + orderResult.insertedId
@@ -777,6 +728,12 @@ router.post("/checkout/verify", requireLogin, async (req, res) => {
     await cartCollection.deleteMany({
         userId: req.session.user._id
     });
+
+    const savedOrder = await orderCollection.findOne({ _id: orderResult.insertedId });
+    if (req.session.user.phone && req.session.user.whatsappOptIn !== false) {
+        sendWhatsAppText(req.session.user.phone, orderBillText(savedOrder, req.session.user))
+            .catch(err => console.error("Automatic WhatsApp bill failed:", err));
+    }
 
     res.json({
         success: true,

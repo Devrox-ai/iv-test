@@ -1,78 +1,129 @@
 const express = require("express");
-
 const router = express.Router();
-
 const { getDB } = require("../config/db");
 
-router.get("/register", (req, res) => {
-
-    res.render("register");
-
-});
-
-router.post("/register", async (req, res) => {
-
-    const db = getDB();
-
-    const collection =
-    db.collection("users");
-
-    await collection.insertOne({
-
-        name: req.body.name,
-
-        password: req.body.password
-
-    });
-
-    res.redirect("/user/login");
-
-});
+function cleanPhone(phone) {
+    return String(phone || "").replace(/\D/g, "").slice(-15);
+}
 
 router.get("/login", (req, res) => {
+    res.render("auth", {
+        step: "start",
+        name: "",
+        phone: "",
+        error: req.query.error || null
+    });
+});
 
-    res.render("login");
+router.post("/continue", async (req, res) => {
+    try {
+        const db = getDB();
+        const name = String(req.body.name || "").trim();
+        const phone = cleanPhone(req.body.phone);
 
+        if (!name || phone.length < 10) {
+            return res.render("auth", {
+                step: "start",
+                name,
+                phone: req.body.phone || "",
+                error: "Please enter your full name and a valid mobile number."
+            });
+        }
+
+        const user = await db.collection("users").findOne({ phone });
+
+        if (user) {
+            return res.render("auth", {
+                step: "password",
+                name: user.name || name,
+                phone,
+                error: null
+            });
+        }
+
+        return res.render("auth", {
+            step: "register",
+            name,
+            phone,
+            error: null
+        });
+    } catch (err) {
+        console.error("Auth continue error:", err);
+        res.status(500).send("Unable to continue.");
+    }
 });
 
 router.post("/login", async (req, res) => {
+    try {
+        const db = getDB();
+        const phone = cleanPhone(req.body.phone);
+        const password = String(req.body.password || "");
 
-    const db = getDB();
+        const user = await db.collection("users").findOne({ phone, password });
 
-    const collection =
-    db.collection("users");
-
-    const user =
-    await collection.findOne({
-
-        name: req.body.name,
-
-        password: req.body.password
-
-    });
-
-    if(user){
+        if (!user) {
+            return res.render("auth", {
+                step: "password",
+                name: req.body.name || "",
+                phone,
+                error: "Incorrect password. Please try again."
+            });
+        }
 
         req.session.user = user;
-
-        res.redirect("/product/home");
-
-    }else{
-
-        res.send("Invalid User");
-
+        res.redirect(req.body.next || "/product/home");
+    } catch (err) {
+        console.error("Login error:", err);
+        res.status(500).send("Unable to login.");
     }
+});
 
+router.post("/register", async (req, res) => {
+    try {
+        const db = getDB();
+        const name = String(req.body.name || "").trim();
+        const phone = cleanPhone(req.body.phone);
+        const password = String(req.body.password || "");
+        const whatsappOptIn = req.body.whatsappOptIn === "on";
+
+        if (!name || phone.length < 10 || password.length < 4) {
+            return res.render("auth", {
+                step: "register",
+                name,
+                phone,
+                error: "Name, valid mobile number and a 4+ character password are required."
+            });
+        }
+
+        const existing = await db.collection("users").findOne({ phone });
+        if (existing) {
+            return res.render("auth", {
+                step: "password",
+                name: existing.name || name,
+                phone,
+                error: "This mobile number is already registered. Please enter your password."
+            });
+        }
+
+        const result = await db.collection("users").insertOne({
+            name,
+            phone,
+            password,
+            whatsappOptIn,
+            createdAt: new Date()
+        });
+
+        const user = await db.collection("users").findOne({ _id: result.insertedId });
+        req.session.user = user;
+        res.redirect(req.body.next || "/product/home");
+    } catch (err) {
+        console.error("Register error:", err);
+        res.status(500).send("Unable to create account.");
+    }
 });
 
 router.get("/logout", (req, res) => {
-
-    req.session.destroy(() => {
-
-        res.redirect("/product/home");
-
-    });
-
+    req.session.destroy(() => res.redirect("/product/home"));
 });
 
 module.exports = router;
