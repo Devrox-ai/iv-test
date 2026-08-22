@@ -196,6 +196,17 @@
                     >
                 </div>
 
+                <!-- INVENTORY -->
+                <div class="field">
+                    <label>Stock Quantity</label>
+                    <input type="number" name="stock" min="0" step="1" value="<%= product.stock ?? 0 %>" required>
+                </div>
+
+                <div class="field">
+                    <label>Low Stock Alert At</label>
+                    <input type="number" name="lowStockLimit" min="0" step="1" value="<%= product.lowStockLimit ?? 5 %>" required>
+                </div>
+
                 <!-- CATEGORY -->
 
                 <div class="field">
@@ -209,6 +220,26 @@
                         <% }) %>
 
                     </select>
+                </div>
+
+                <!-- SIZE INVENTORY -->
+                <div class="field">
+                    <label>Available Sizes & Size-wise Stock</label>
+                    <div class="size-admin-grid">
+                    <% availableSizes.forEach(function(size){ 
+                        var enabled = Array.isArray(product.sizes) && product.sizes.includes(size);
+                        var qty = product.sizeStock && product.sizeStock[size] != null ? product.sizeStock[size] : 0;
+                    %>
+                        <div class="size-admin-item">
+                            <label>
+                                <span><input type="checkbox" name="sizes" value="<%= size %>" <%= enabled ? 'checked' : '' %> onchange="toggleSizeStock(this)"> <%= size %></span>
+                                <span>Stock</span>
+                            </label>
+                            <input type="number" name="sizeStock_<%= size %>" min="0" step="1" value="<%= qty %>" <%= enabled ? '' : 'disabled' %>>
+                        </div>
+                    <% }) %>
+                    </div>
+                    <div style="font-size:10px;color:#8a7b82;margin-top:8px;">Example: M = 4, L = 6, XL = 0 means XL is sold out.</div>
                 </div>
 
                 <!-- CURRENT IMAGE + REPLACE -->
@@ -233,6 +264,13 @@
         </div>
 
     </div>
+
+<script>
+function toggleSizeStock(box){
+    const input = box.closest(".size-admin-item").querySelector('input[type="number"]');
+    if(input){ input.disabled = !box.checked; }
+}
+</script>
 
 </body>
 

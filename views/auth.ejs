@@ -52,6 +52,32 @@ input:focus{border-color:#d7a4b9}.btn{width:100%;border:0;border-radius:14px;pad
       <input name="password" type="password" placeholder="Enter password" required autofocus>
       <button class="btn">Login</button>
     </form>
+    <div class="back"><a href="/user/forgot-password">Forgot password?</a></div>
+  <% } %>
+
+  <% if(step === "forgot"){ %>
+    <h2>Reset your password</h2>
+    <p class="hint">Enter your registered mobile number. We'll send a 6-digit code on WhatsApp.</p>
+    <form action="/user/forgot-password/send-otp" method="POST">
+      <label>Mobile / WhatsApp Number</label>
+      <input name="phone" value="<%= phone %>" placeholder="9876543210" inputmode="tel" required>
+      <button class="btn">Send Code On WhatsApp</button>
+    </form>
+  <% } %>
+
+  <% if(step === "forgot-verify"){ %>
+    <span class="user-pill">📱 <%= phone %></span>
+    <h2>Enter the code</h2>
+    <p class="hint">We've sent a 6-digit code to your WhatsApp. Enter it below along with your new password.</p>
+    <form action="/user/forgot-password/reset" method="POST">
+      <input type="hidden" name="phone" value="<%= phone %>">
+      <label>OTP Code</label>
+      <input name="otp" placeholder="6-digit code" inputmode="numeric" maxlength="6" required autofocus>
+      <label>New Password</label>
+      <input name="password" type="password" placeholder="Create a new password" minlength="4" required>
+      <button class="btn">Reset Password</button>
+    </form>
+    <div class="back"><a href="/user/forgot-password">Didn't get it? Send again</a></div>
   <% } %>
 
   <% if(step === "register"){ %>

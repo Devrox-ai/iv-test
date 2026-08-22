@@ -128,18 +128,51 @@
                 <div class="pd-price">Price unavailable</div>
             <% } %>
 
+            <% if(typeof querySizeRequired !== 'undefined' && querySizeRequired){ %><div style="background:#fff5df;color:#80551c;border:1px solid #ead3a3;padding:10px 12px;border-radius:7px;font-size:12px;margin-bottom:14px;">Please select an available size.</div><% } %>
+            <% if(typeof querySizeUnavailable !== 'undefined' && querySizeUnavailable){ %><div style="background:#fff0ef;color:#a52b20;border:1px solid #efc6c1;padding:10px 12px;border-radius:7px;font-size:12px;margin-bottom:14px;">That size is currently unavailable. Please choose another size.</div><% } %>
+
             <div class="pd-meta-line">
                 Premium handcrafted piece, made by skilled artisans using traditional techniques
                 paired with modern tailoring for an everyday-elegant fit.
             </div>
 
+            <%
+                var pdSizes = (Array.isArray(product.sizes) && product.sizes.length)
+                    ? product.sizes
+                    : (String(categoryName || '').toLowerCase().includes('saree')
+                        ? ['Free Size']
+                        : ['XS','S','M','L','XL','XXL']);
+                var pdSizeStock = product.sizeStock || {};
+                var hasSizeData = pdSizes.length > 0;
+            %>
+
+            <% if(hasSizeData){ %>
+                <div class="size-picker">
+                    <div class="size-picker-label">
+                        <span>Select Size</span>
+                        <a href="#size-info" class="size-guide">Size guide</a>
+                    </div>
+                    <div class="size-options">
+                        <% pdSizes.forEach(function(size, index){ 
+                            var available = product.sizeStock ? Number(pdSizeStock[size] || 0) > 0 : Number(product.stock || 0) > 0;
+                        %>
+                            <div class="size-option">
+                                <input type="radio" id="size-<%= index %>" name="size" value="<%= size %>" form="addCartForm" <%= index === 0 && available ? 'checked' : '' %> <%= !available ? 'disabled' : '' %>>
+                                <label for="size-<%= index %>"><%= size %></label>
+                            </div>
+                        <% }) %>
+                    </div>
+                    <div class="size-stock-note">Choose an available size before adding to cart.</div>
+                </div>
+            <% } %>
+
             <div class="pd-actions">
 
-                <form action="/product/cart/add/<%= product._id %>" method="POST">
+                <form id="addCartForm" action="/product/cart/add/<%= product._id %>" method="POST">
                     <button type="submit" class="cart-btn">Add To Cart</button>
                 </form>
 
-                <form action="/product/cart/add/<%= product._id %>" method="POST">
+                <form id="buyNowForm" action="/product/cart/add/<%= product._id %>" method="POST">
                     <button type="submit" class="buy-btn">Buy Now</button>
                 </form>
 
@@ -206,5 +239,22 @@
 
     <%- include('partials/login-toast') %>
 
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+    const addForm = document.getElementById("addCartForm");
+    const buyForm = document.getElementById("buyNowForm");
+    const radios = document.querySelectorAll('input[name="size"][form="addCartForm"]');
+    function syncSize(form){
+        if(!form) return;
+        let hidden=form.querySelector('input[name="size"]');
+        if(!hidden){ hidden=document.createElement("input"); hidden.type="hidden"; hidden.name="size"; form.appendChild(hidden); }
+        const checked=document.querySelector('input[name="size"][form="addCartForm"]:checked');
+        hidden.value=checked ? checked.value : "";
+    }
+    if(addForm) addForm.addEventListener("submit",function(e){ syncSize(addForm); });
+    if(buyForm) buyForm.addEventListener("submit",function(e){ syncSize(buyForm); });
+    radios.forEach(r=>r.addEventListener("change",()=>syncSize(buyForm)));
+});
+</script>
 </body>
 </html>

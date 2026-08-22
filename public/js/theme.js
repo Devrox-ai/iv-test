@@ -13,17 +13,8 @@ function imgFallback(img, label) {
 
 }
 
-// Category dropdown toggle
+// Desktop category dropdowns are handled by CSS hover/focus.
 document.addEventListener("DOMContentLoaded", () => {
-
-    const dropdowns = document.querySelectorAll(".dropdown");
-
-    dropdowns.forEach(dropdown => {
-        dropdown.addEventListener("click", () => {
-            dropdown.classList.toggle("active");
-        });
-    });
-
     // Show login-required toast if redirected with the flag
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -55,4 +46,60 @@ document.addEventListener("DOMContentLoaded", () => {
     if (mobileCloseBtn) mobileCloseBtn.addEventListener("click", closeDrawer);
     if (mobileOverlay) mobileOverlay.addEventListener("click", closeDrawer);
 
+});
+
+
+/* Reliable desktop mega-menu behavior: keep the panel open while the
+   pointer moves from the category label into the full-width panel. */
+document.addEventListener("DOMContentLoaded", function(){
+  if (window.matchMedia("(min-width:901px)").matches) {
+    const bar = document.getElementById("categoryNavbar");
+    if (!bar) return;
+    const items = bar.querySelectorAll(".category-container > .dropdown");
+    let closeTimer = null;
+
+    function positionPanel(item){
+      const panel = item.querySelector(".dropdown-content");
+      if (!panel) return;
+      const rect = bar.getBoundingClientRect();
+      panel.style.top = rect.bottom + "px";
+      panel.style.left = "0px";
+      panel.style.width = window.innerWidth + "px";
+    }
+
+    function openItem(item){
+      clearTimeout(closeTimer);
+      items.forEach(x => { if (x !== item) x.classList.remove("menu-open"); });
+      const panel = item.querySelector(".dropdown-content");
+      if (!panel) return;
+      positionPanel(item);
+      item.classList.add("menu-open");
+      panel.classList.add("menu-open");
+    }
+
+    function closeItem(item){
+      clearTimeout(closeTimer);
+      closeTimer = setTimeout(function(){
+        item.classList.remove("menu-open");
+        const panel = item.querySelector(".dropdown-content");
+        if (panel) panel.classList.remove("menu-open");
+      }, 180);
+    }
+
+    items.forEach(item => {
+      const panel = item.querySelector(".dropdown-content");
+      item.addEventListener("mouseenter", () => openItem(item));
+      item.addEventListener("mouseleave", () => closeItem(item));
+      if (panel) {
+        panel.addEventListener("mouseenter", () => { clearTimeout(closeTimer); openItem(item); });
+        panel.addEventListener("mouseleave", () => closeItem(item));
+      }
+    });
+    window.addEventListener("resize", function(){
+      items.forEach(item => { if (item.classList.contains("menu-open")) positionPanel(item); });
+    });
+    window.addEventListener("scroll", function(){
+      items.forEach(item => { if (item.classList.contains("menu-open")) positionPanel(item); });
+    }, {passive:true});
+  }
 });

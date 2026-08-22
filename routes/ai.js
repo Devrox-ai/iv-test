@@ -23,18 +23,25 @@ router.post("/chat", async (req, res) => {
 
         // If no API key is configured, still answer basic price/product queries from the store data.
         if (!process.env.OPENAI_API_KEY) {
+            if (catalog.length === 0) {
+                console.warn("AI chat: no products found in the database — every reply will be the empty-catalog message until products are added.");
+                return res.json({ answer: "The store catalog looks empty right now — no products are set up yet. Please add products from the admin panel, or ask the store owner." });
+            }
+
             const q = question.toLowerCase();
             const under = q.match(/(?:under|below|less than|upto|up to)\s*(?:₹|rs\.?|inr)?\s*([\d,]+)/i);
             let list = catalog;
             if (under) list = catalog.filter(p => p.price <= Number(under[1].replace(/,/g, "")));
-            const words = q.split(/\s+/).filter(w => w.length > 2);
+            const words = q.split(/\s+/).filter(w => w.length > 1);
             if (!under && words.length) {
-                const matched = catalog.filter(p => words.some(w => p.name.toLowerCase().includes(w)));
+                const matched = catalog.filter(p =>
+                    words.some(w => p.name.toLowerCase().includes(w) || p.category.toLowerCase().includes(w))
+                );
                 if (matched.length) list = matched;
             }
             const answer = list.length
                 ? list.slice(0, 8).map(p => `• ${p.name} — ₹${p.price.toLocaleString("en-IN")}`).join("\n")
-                : "I couldn't find a matching product in the current store catalog.";
+                : `I couldn't find anything matching that. We have: ${[...new Set(catalog.map(p => p.category))].join(", ")}.`;
             return res.json({ answer });
         }
 
@@ -59,7 +66,7 @@ router.post("/chat", async (req, res) => {
                 "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
             },
             body: JSON.stringify({
-                model: process.env.OPENAI_MODEL || "gpt-5.6-luna",
+                model: process.env.OPENAI_MODEL || "gpt-4o-mini",
                 input: prompt,
                 max_output_tokens: 500
             })

@@ -140,13 +140,14 @@
 
     <div class="manage-wrap">
 
-        <a href="/product/home" class="manage-back">← Back To Store</a>
+        <a href="/admin/dashboard" class="manage-back">← Admin Dashboard</a>
 
         <div class="manage-head" style="margin-top: 18px;">
             <h1>Manage Products</h1>
             <div class="manage-actions">
                 <a href="/product/manage-categories">Manage Categories</a>
                 <a href="/product/manage-orders">Orders</a>
+                <form action="/admin/initialize-sizes" method="POST" style="display:inline;" onsubmit="return confirm('Add size inventory to products that do not have sizes yet?');"><button type="submit" class="edit-btn" style="border:0;cursor:pointer;">Initialize Sizes</button></form>
                 <a href="/product/product-form" class="solid">+ Add Product</a>
             </div>
         </div>
@@ -176,6 +177,18 @@
                             <h4><%= product.title %></h4>
                             <div class="m-cat"><%= categoryMap[product.categoryId] || 'Uncategorized' %></div>
                             <div class="m-price"><%= product.price ? '₹' + product.price.toLocaleString('en-IN') : 'No price set' %></div>
+                            <% if(Array.isArray(product.sizes) && product.sizes.length){ %>
+                                <div class="size-summary">
+                                <% product.sizes.forEach(function(size){ 
+                                    var q = product.sizeStock && product.sizeStock[size] != null ? Number(product.sizeStock[size]) : 0;
+                                %><span class="size-pill"><%= size %>: <%= q %></span><% }) %>
+                                </div>
+                            <% } %>
+
+                            <div style="font-size:11px;margin:-4px 0 10px;color:<%= Number(product.stock||0)<=0?'#a33b3b':(Number(product.stock||0)<=Number(product.lowStockLimit||5)?'#b56b17':'#21734a') %>;font-weight:700;">
+                                Stock: <%= product.stock ?? 0 %>
+                                <%= Number(product.stock||0)<=0 ? ' — OUT OF STOCK' : (Number(product.stock||0)<=Number(product.lowStockLimit||5) ? ' — LOW STOCK' : ' — IN STOCK') %>
+                            </div>
 
                             <div style="display:flex; gap:8px;">
 

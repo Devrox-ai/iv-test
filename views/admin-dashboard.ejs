@@ -1,35 +1,130 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Dashboard — <%= shopName %></title>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title><%= shopName %> — Admin Control Center</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f7f2f4;color:#30232b;font-family:Arial,sans-serif}.top{background:#341421;color:#fff;padding:20px 5%;display:flex;justify-content:space-between;align-items:center;gap:15px}.top h1{margin:0;font-size:24px}.top a{color:#fff;text-decoration:none}.wrap{width:92%;max-width:1400px;margin:25px auto}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.stat,.card{background:#fff;border-radius:15px;padding:20px;box-shadow:0 5px 20px #3d193010}.stat small{color:#877681}.stat strong{display:block;font-size:28px;margin-top:8px;color:#5f1838}.orders{margin-top:20px;display:grid;gap:15px}.order{background:#fff;border-radius:15px;padding:20px}.orderhead{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid #eee;padding-bottom:13px}.customer strong{font-size:17px}.muted{color:#877681;font-size:12px}.items{margin:15px 0}.item{display:flex;justify-content:space-between;padding:5px 0}.total{font-size:18px;font-weight:700;border-top:1px solid #eee;padding-top:10px}.actions{display:grid;grid-template-columns:170px 1fr auto;gap:8px;margin-top:15px}.actions select,.actions input,.actions button{padding:10px;border:1px solid #ddd;border-radius:9px}.actions button{background:#641c3d;color:#fff;border:0;cursor:pointer}.bill{margin-top:9px;background:#2d7d46!important}.tag{padding:5px 9px;border-radius:20px;background:#efe3e8;color:#641c3d;font-size:11px}.empty{padding:40px;text-align:center;color:#887}.flash{background:#e9f8ed;padding:10px 13px;border-radius:9px;margin-bottom:15px}
-@media(max-width:800px){.stats{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}.orderhead{flex-direction:column}}
-</style></head>
+:root{--wine:#5b1635;--deep:#351020;--cream:#faf7f4;--line:#e9ded7;--muted:#8a7a82;--green:#21734a;--orange:#b56b17;--red:#a33b3b;--shadow:0 10px 30px rgba(55,24,40,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:#30252b;font:13px Inter,Arial,sans-serif}.top{height:68px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 3%;position:sticky;top:0;z-index:50}.brand{display:flex;gap:10px;align-items:center}.mark{width:38px;height:38px;background:var(--wine);color:#fff;border-radius:10px;display:grid;place-items:center;font:20px Georgia}.brand b{font:20px Georgia;color:var(--deep)}.brand small{display:block;font-size:9px;color:var(--muted);letter-spacing:1px}.topnav{display:flex;gap:6px}.topnav a{padding:9px 11px;border-radius:8px;text-decoration:none;color:#5d4d55;font-size:11px}.topnav a:hover{background:#f5ebef;color:var(--wine)}.layout{width:min(1500px,94%);margin:20px auto 70px;display:grid;grid-template-columns:235px 1fr;gap:20px}.side{background:#fff;border:1px solid var(--line);border-radius:15px;padding:12px;height:max-content;position:sticky;top:88px;box-shadow:var(--shadow)}.side-title{padding:9px 9px 5px;color:#a09097;font-size:9px;text-transform:uppercase;letter-spacing:1.4px}.side a{display:flex;align-items:center;gap:9px;padding:10px;border-radius:9px;text-decoration:none;color:#55474f;font-size:11px;margin:2px 0}.side a:hover,.side a.active{background:#f5ebef;color:var(--wine);font-weight:700}.side a.primary{background:var(--wine);color:#fff}.main h1{font:500 30px Georgia;color:var(--deep);margin:0}.sub{color:var(--muted);font-size:11px;margin:5px 0 18px}.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}.quick a{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;text-decoration:none;color:#30252b;box-shadow:var(--shadow)}.quick a:hover{border-color:#ceb4bf;transform:translateY(-1px)}.quick .ico{font-size:19px}.quick b{display:block;color:var(--deep);font-size:11px;margin-top:6px}.quick span{display:block;color:var(--muted);font-size:9px;margin-top:2px}.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:15px}.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow)}.stat small{color:var(--muted);font-size:9px}.stat strong{display:block;font-size:21px;color:var(--deep);margin-top:7px}.stat.green strong{color:var(--green)}.stat.warn strong{color:var(--orange)}.stat.red strong{color:var(--red)}.grid2{display:grid;grid-template-columns:1.45fr 1fr;gap:14px}.panel{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);overflow:hidden}.panel-head{padding:14px 16px;border-bottom:1px solid #eee6e1;display:flex;justify-content:space-between;gap:10px;align-items:center}.panel-head h2{font-size:13px;color:var(--deep);margin:0}.panel-head a{font-size:10px;color:var(--wine);text-decoration:none}.panel-body{padding:14px 16px}.alert{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid #f0d6ac;background:#fff8e9;border-radius:9px;padding:10px;margin-bottom:8px}.alert.red{background:#fff0f0;border-color:#f1cccc}.alert b{font-size:11px}.alert span{font-size:9px;color:var(--muted)}.order-mini{padding:11px 0;border-bottom:1px solid #eee6e1;display:flex;gap:10px;align-items:center}.order-mini:last-child{border-bottom:0}.mini-avatar{width:34px;height:34px;border-radius:50%;background:#f2e5ea;display:grid;place-items:center;color:var(--wine);font-size:10px;font-weight:800}.order-mini .info{flex:1;min-width:0}.order-mini b{display:block;font-size:11px;color:var(--deep)}.order-mini small{display:block;color:var(--muted);font-size:9px;margin-top:3px}.pill{padding:4px 7px;border-radius:20px;font-size:8px;font-weight:800;text-transform:uppercase;background:#fff5e4;color:var(--orange)}.pill.paid,.pill.delivered{background:#eaf6ef;color:var(--green)}.pill.cancelled{background:#fff0f0;color:var(--red)}.best{display:grid;gap:8px}.best-row{display:flex;gap:9px;align-items:center;padding:8px;border:1px solid #eee6e1;border-radius:9px}.best-img{width:42px;height:50px;object-fit:cover;border-radius:6px;background:#f3ebe6}.best-info{flex:1}.best-info b{font-size:10px;display:block}.best-info small{font-size:9px;color:var(--muted)}.money{font-weight:800;color:var(--wine);font-size:11px}.status-row{display:flex;gap:7px;flex-wrap:wrap}.status-box{padding:9px 10px;border:1px solid var(--line);border-radius:8px;min-width:90px}.status-box b{display:block;font-size:15px;color:var(--deep)}.status-box span{font-size:8px;color:var(--muted);text-transform:uppercase}.flash{background:#eaf7ef;color:#216c43;border:1px solid #cce8d6;border-radius:9px;padding:10px 12px;margin-bottom:13px;font-size:11px}
+@media(max-width:1200px){.stats{grid-template-columns:repeat(3,1fr)}.quick{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.side{position:static;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.side-title{display:none}.topnav{display:none}}
+@media(max-width:560px){.side{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:1fr 1fr}.quick{grid-template-columns:1fr 1fr}.main h1{font-size:26px}.top{height:auto;padding:11px 3%}}
+</style>
+</head>
 <body>
-<div class="top"><h1><%= shopName %> Admin</h1><div><a href="/product/home">Store</a> &nbsp; | &nbsp; <a href="/admin/logout">Logout</a></div></div>
-<div class="wrap">
-<% if(typeof updated !== 'undefined' || typeof bill !== 'undefined'){ %><div class="flash">Action completed.</div><% } %>
+<header class="top">
+<div class="brand"><div class="mark">V</div><div><b><%= shopName %></b><small>ADMIN CONTROL CENTER</small></div></div>
+<nav class="topnav"><a href="/product/home">Store</a><a href="/admin/customers">Customers</a><a href="/admin/reports">Reports</a><a href="/admin/logout">Logout</a></nav>
+</header>
+
+<div class="layout">
+<aside class="side">
+<div class="side-title">Main</div>
+<a class="active" href="/admin/dashboard">📊 Dashboard</a>
+<a href="/product/manage-orders">📦 Orders</a>
+<a href="/admin/reports">📈 Sales Reports</a>
+<a href="/admin/customers">👥 Customers</a>
+<div class="side-title">Products</div>
+<a class="primary" href="/product/product-form">＋ Add Product</a>
+<a href="/product/manage">🛍 Manage Products</a>
+<a href="/product/category-form">＋ Add Category</a>
+<a href="/product/manage-categories">🗂 Categories</a>
+<div class="side-title">Store</div>
+<a href="/product/home">🌐 View Store</a>
+<a href="/product/cart">🛒 View Cart</a>
+<a href="/admin/logout">↪ Logout</a>
+</aside>
+
+<main class="main">
+<h1>Admin Control Center</h1>
+<div class="sub">Orders, products, stock, customers aur sales — sab ek jagah.</div>
+
+<div class="quick">
+<a href="/product/product-form"><div class="ico">➕</div><b>Add Product</b><span>Product + image + stock</span></a>
+<a href="/product/manage"><div class="ico">🛍️</div><b>Manage Products</b><span>Edit, delete & inventory</span></a>
+<a href="/product/category-form"><div class="ico">🗂️</div><b>Add Category</b><span>Create category</span></a>
+<a href="/product/manage-categories"><div class="ico">📁</div><b>Categories</b><span>Manage store categories</span></a>
+<a href="/product/manage-orders"><div class="ico">📦</div><b>Orders</b><span>Status + bill + WhatsApp</span></a>
+<a href="/admin/customers"><div class="ico">👥</div><b>Customers</b><span>History + spending</span></a>
+<a href="/admin/reports"><div class="ico">📈</div><b>Reports</b><span>Sales + best sellers</span></a>
+<a href="/product/home"><div class="ico">🌐</div><b>Open Store</b><span>Customer website</span></a>
+<form action="/admin/seed-catalog" method="POST" style="margin:0" onsubmit="return confirm('Existing product images ko catalog me add karna hai? Existing catalog products duplicate nahi honge.');">
+<button type="submit" style="width:100%;height:100%;text-align:left;border:0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;font:inherit;color:#30252b;box-shadow:var(--shadow)">
+<div class="ico">🖼️</div><b>Load Image Catalog</b><span>Existing images → products</span>
+</button>
+</form>
+</div>
+
+<% if(typeof seeded !== "undefined" && seeded){ %><div class="flash"><%= seeded %> existing-image products were added. Existing products were skipped.</div><% } %>
+
+<% if(updated || bill){ %><div class="flash"><%= bill ? 'Bill sent successfully on WhatsApp.' : 'Order status updated successfully.' %></div><% } %>
+
 <div class="stats">
 <div class="stat"><small>Total Orders</small><strong><%= orders.length %></strong></div>
-<div class="stat"><small>Total Customers</small><strong><%= users.length %></strong></div>
-<div class="stat"><small>Products</small><strong><%= products.length %></strong></div>
-<div class="stat"><small>Sales</small><strong>₹<%= Number(totalSales).toLocaleString('en-IN') %></strong></div>
+<div class="stat green"><small>Total Sales</small><strong>₹<%= Number(totalSales).toLocaleString('en-IN') %></strong></div>
+<div class="stat warn"><small>Active Orders</small><strong><%= pending %></strong></div>
+<div class="stat green"><small>Paid Online</small><strong><%= paidOrders %></strong></div>
+<div class="stat"><small>COD Orders</small><strong><%= codOrders %></strong></div>
+<div class="stat <%= outOfStock.length ? 'red' : '' %>"><small>Out of Stock</small><strong><%= outOfStock.length %></strong></div>
 </div>
-<div class="orders">
-<% orders.forEach(function(order){ const u=userMap[order.userId ? order.userId.toString() : ""]; %>
-<div class="order">
-<div class="orderhead"><div class="customer"><strong><%= u ? u.name : "Unknown User" %></strong><div class="muted">📱 <%= u ? (u.phone || "No phone") : "No phone" %> &nbsp; • &nbsp; Order <%= order._id %></div></div><div><span class="tag"><%= order.status || "paid" %></span><div class="muted" style="margin-top:6px"><%= order.createdAt ? new Date(order.createdAt).toLocaleString('en-IN') : "" %></div></div></div>
-<div class="items"><% (order.items || []).forEach(function(item){ %><div class="item"><span><%= item.title %></span><span>₹<%= Number(item.price||0).toLocaleString('en-IN') %></span></div><% }) %></div>
-<div class="total">Total: ₹<%= Number(order.total||0).toLocaleString('en-IN') %></div>
-<form class="actions" method="POST" action="/admin/orders/<%= order._id %>/update">
-<select name="status"><% ["confirmed","processing","packing started","ready to dispatch","dispatched","delivered","cancelled"].forEach(function(s){ %><option <%= String(order.status||"").toLowerCase()===s ? "selected" : "" %>><%= s %></option><% }) %></select>
-<input name="message" placeholder="Message to customer e.g. Packing started, 2 days...">
-<button>Update + WhatsApp</button>
-</form>
-<form method="POST" action="/admin/orders/<%= order._id %>/send-bill"><button class="actions bill" style="width:100%">Send Bill on WhatsApp</button></form>
+
+<div class="grid2">
+<section class="panel">
+<div class="panel-head"><h2>🔔 Stock Alerts</h2><a href="/product/manage">Manage Products →</a></div>
+<div class="panel-body">
+<% if(lowStock.length){ lowStock.slice(0,8).forEach(function(p){ %>
+<div class="alert <%= Number(p.stock)<=0?'red':'' %>">
+<div><b><%= p.title %></b><span>Stock: <%= p.stock %> · Alert at <%= p.lowStockLimit || 5 %></span></div>
+<a href="/product/edit/<%= p._id %>" style="color:#5b1635;font-size:10px">Edit</a>
+</div>
+<% }) } else { %><div style="color:#7d7077;font-size:11px;padding:12px 0">All products have healthy stock levels. ✓</div><% } %>
+</div>
+</section>
+
+<section class="panel">
+<div class="panel-head"><h2>📦 Order Status</h2><a href="/product/manage-orders">All orders →</a></div>
+<div class="panel-body">
+<div class="status-row">
+<% Object.entries(statusCounts).slice(0,8).forEach(function(pair){ %>
+<div class="status-box"><b><%= pair[1] %></b><span><%= pair[0] %></span></div>
+<% }) %>
+</div>
+</div>
+</section>
+
+<section class="panel">
+<div class="panel-head"><h2>🛒 Recent Orders</h2><a href="/product/manage-orders">View all →</a></div>
+<div class="panel-body">
+<% orders.slice(0,7).forEach(function(o){ const u=userMap[o.userId?o.userId.toString():""]; const name=u&&u.name?u.name:"Customer"; const initials=name.split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase(); %>
+<div class="order-mini">
+<div class="mini-avatar"><%= initials %></div>
+<div class="info"><b><%= name %></b><small><%= o.items?.length || 0 %> item(s) · ₹<%= Number(o.total||0).toLocaleString('en-IN') %> · <%= o.createdAt?new Date(o.createdAt).toLocaleString('en-IN'):'' %></small></div>
+<span class="pill <%= String(o.status||'').toLowerCase().replace(/\s+/g,'-') %>"><%= o.status||'unknown' %></span>
+<a href="/admin/orders/<%= o._id %>" style="font-size:15px;color:#5b1635;text-decoration:none">›</a>
 </div>
 <% }) %>
-<% if(!orders.length){ %><div class="card empty">No orders yet.</div><% } %>
+<% if(!orders.length){ %><div style="color:#8a7a82;padding:12px 0">No orders yet.</div><% } %>
+</div>
+</section>
+
+<section class="panel">
+<div class="panel-head"><h2>🏆 Best Selling Products</h2><a href="/admin/reports">Full report →</a></div>
+<div class="panel-body">
+<div class="best">
+<% bestSellers.forEach(function(p){ %>
+<div class="best-row">
+<% if(p.image){ %><img class="best-img" src="/images/<%= p.image %>"><% } else { %><div class="best-img"></div><% } %>
+<div class="best-info"><b><%= p.title %></b><small><%= p.qty %> sold</small></div>
+<span class="money">₹<%= Number(p.sales||0).toLocaleString('en-IN') %></span>
+</div>
+<% }) %>
+<% if(!bestSellers.length){ %><div style="color:#8a7a82;font-size:11px">Sales data will appear here after orders.</div><% } %>
 </div>
 </div>
-</body></html>
+</section>
+</div>
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Order #<%= order._id %> — <%= shopName %></title>
+<style>
+:root{--wine:#5b1635;--deep:#351020;--cream:#faf7f4;--line:#e8ddd6;--muted:#887982;--green:#21734a;--orange:#b56b17}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:#30252b;font:13px Inter,Arial,sans-serif}.top{background:#fff;border-bottom:1px solid var(--line);padding:14px 4%;display:flex;justify-content:space-between;align-items:center}.top a{color:var(--wine);text-decoration:none;font-size:11px}.wrap{width:min(1050px,94%);margin:25px auto 60px}.head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:18px}.head h1{font:500 28px Georgia;color:var(--deep);margin:0}.sub{color:var(--muted);font-size:10px;margin-top:5px}.grid{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}.card{background:#fff;border:1px solid var(--line);border-radius:13px;overflow:hidden}.card h2{font-size:13px;margin:0;padding:14px 16px;border-bottom:1px solid #eee6e1;color:var(--deep)}.body{padding:16px}.item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid #eee6e1}.item:last-child{border-bottom:0}.img{width:75px;height:90px;border-radius:8px;object-fit:cover;background:#f3ebe6}.info{flex:1}.info b{font-size:12px}.info small{display:block;color:var(--muted);margin-top:5px;font-size:10px}.price{font-weight:800;color:var(--wine)}.row{display:flex;justify-content:space-between;gap:15px;padding:8px 0;font-size:11px}.total{border-top:1px solid var(--line);margin-top:8px;padding-top:13px;font-size:15px;font-weight:800}.customer b{font-size:14px;color:var(--deep)}.customer p{margin:7px 0;color:#6e6068;font-size:11px;line-height:1.6}.pill{display:inline-block;padding:6px 9px;border-radius:20px;background:#fff5e4;color:var(--orange);font-size:9px;font-weight:800;text-transform:uppercase}.form{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}.form select,.form input,.form button{width:100%;padding:10px;border:1px solid #ded3cd;border-radius:7px;background:#fff;margin-bottom:8px;font-size:11px}.form button{background:var(--wine);color:#fff;border-color:var(--wine);font-weight:700}.timeline{display:grid;gap:8px}.event{padding:9px;border-left:3px solid #d5b6c2;background:#fcfaf9;font-size:10px}.event b{color:var(--wine)}.event small{display:block;color:var(--muted);margin-top:4px}
+@media(max-width:750px){.grid{grid-template-columns:1fr}.head{flex-direction:column}}
+</style></head>
+<body><header class="top"><a href="/admin/dashboard">← Back to Dashboard</a><a href="/admin/logout">Logout</a></header>
+<main class="wrap">
+<div class="head"><div><h1>Order #<%= order._id %></h1><div class="sub"><%= order.createdAt?new Date(order.createdAt).toLocaleString('en-IN'):'' %></div></div><span class="pill"><%= order.status||'unknown' %></span></div>
+<div class="grid">
+<section class="card"><h2>🛍 Ordered Items</h2><div class="body">
+<% (order.items||[]).forEach(function(item){ %><div class="item">
+<% if(item.image){ %><img class="img" src="/images/<%= item.image %>" alt=""><% } else { %><div class="img"></div><% } %>
+<div class="info"><b><%= item.title||'Product' %></b><small>Qty: <%= item.quantity||1 %></small><div class="price" style="margin-top:9px">₹<%= Number(item.price||0).toLocaleString('en-IN') %></div></div>
+</div><% }) %>
+<div class="row"><span>Subtotal</span><b>₹<%= Number(order.total||0).toLocaleString('en-IN') %></b></div>
+<div class="row"><span>Shipping</span><span>Free</span></div><div class="row total"><span>Total</span><span>₹<%= Number(order.total||0).toLocaleString('en-IN') %></span></div>
+</div></section>
+
+<aside>
+<section class="card"><h2>👤 Customer</h2><div class="body customer">
+<b><%= user?.name||'Customer' %></b>
+<p>📱 <%= user?.phone||'No phone' %><br>✉️ <%= user?.email||'No email' %></p>
+<a href="<%= user?'/admin/customers/'+user._id:'/admin/customers' %>" style="color:#5b1635;font-size:10px">View customer →</a>
+</div></section>
+
+<section class="card" style="margin-top:14px"><h2>💳 Payment</h2><div class="body">
+<div class="row"><span>Method</span><b><%= order.paymentMode || (order.razorpayPaymentId?'online':'unknown') %></b></div>
+<div class="row"><span>Status</span><b><%= order.status||'unknown' %></b></div>
+<% if(order.razorpayPaymentId){ %><div class="row"><span>Payment ID</span><span style="word-break:break-all;text-align:right"><%= order.razorpayPaymentId %></span></div><% } %>
+<% if(order.razorpayOrderId){ %><div class="row"><span>Gateway Order</span><span style="word-break:break-all;text-align:right"><%= order.razorpayOrderId %></span></div><% } %>
+</div></section>
+
+<section class="card" style="margin-top:14px"><h2>🔄 Update Status</h2><div class="body">
+<form class="form" action="/admin/orders/<%= order._id %>/update" method="POST">
+<select name="status">
+<% ['pending','confirmed','processing','packing started','ready to dispatch','dispatched','delivered','cancelled'].forEach(function(s){ %><option value="<%= s %>" <%= String(order.status||'').toLowerCase()===s?'selected':'' %>><%= s.replace(/\b\w/g,c=>c.toUpperCase()) %></option><% }) %>
+</select>
+<input name="message" placeholder="Optional WhatsApp message">
+<button>Update + WhatsApp</button>
+</form>
+<form class="form" action="/admin/orders/<%= order._id %>/send-bill" method="POST"><button style="background:#21734a;border-color:#21734a">Send Bill on WhatsApp</button></form>
+</div></section>
+</aside>
+</div>
+
+<% if(order.adminMessages && order.adminMessages.length){ %>
+<section class="card" style="margin-top:14px"><h2>📜 Order Timeline</h2><div class="body timeline">
+<% order.adminMessages.slice().reverse().forEach(function(e){ %><div class="event"><b><%= e.status||'Update' %></b> — <%= e.message %><small><%= e.sentAt?new Date(e.sentAt).toLocaleString('en-IN'):'' %></small></div><% }) %>
+</div></section><% } %>
+</main></body></html>

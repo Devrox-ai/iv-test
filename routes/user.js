@@ -1,9 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const { getDB } = require("../config/db");
+const { sendWhatsAppText } = require("../services/whatsapp");
 
 function cleanPhone(phone) {
     return String(phone || "").replace(/\D/g, "").slice(-15);
+}
+
+function generateOtp() {
+    return String(Math.floor(100000 + Math.random() * 900000));
 }
 
 router.get("/login", (req, res) => {
@@ -119,6 +124,115 @@ router.post("/register", async (req, res) => {
     } catch (err) {
         console.error("Register error:", err);
         res.status(500).send("Unable to create account.");
+    }
+});
+
+// FORGOT PASSWORD — STEP 1: ask for the registered mobile number
+router.get("/forgot-password", (req, res) => {
+    res.render("auth", {
+        step: "forgot",
+        name: "",
+        phone: "",
+        error: req.query.error || null
+    });
+});
+
+// FORGOT PASSWORD — STEP 2: send a 6-digit OTP to that number on WhatsApp
+router.post("/forgot-password/send-otp", async (req, res) => {
+    try {
+        const db = getDB();
+        const phone = cleanPhone(req.body.phone);
+
+        const user = await db.collection("users").findOne({ phone });
+        if (!user) {
+            return res.render("auth", {
+                step: "forgot",
+                name: "",
+                phone: req.body.phone || "",
+                error: "No account found with this mobile number."
+            });
+        }
+
+        const otp = generateOtp();
+        req.session.resetOtp = {
+            phone,
+            otp,
+            expires: Date.now() + 10 * 60 * 1000 // 10 minutes
+        };
+
+        const result = await sendWhatsAppText(
+            phone,
+            `Your Vastraa password reset code is *${otp}*. It is valid for 10 minutes. Do not share this code with anyone.`
+        );
+
+        if (!result.ok) {
+            console.error("Forgot-password OTP not sent:", result.reason || result.error);
+            return res.render("auth", {
+                step: "forgot",
+                name: "",
+                phone: req.body.phone || "",
+                error: "Could not send the OTP on WhatsApp right now. Please contact the store, or try again later."
+            });
+        }
+
+        res.render("auth", {
+            step: "forgot-verify",
+            name: user.name || "",
+            phone,
+            error: null
+        });
+    } catch (err) {
+        console.error("Forgot-password send-otp error:", err);
+        res.status(500).send("Unable to process this request right now.");
+    }
+});
+
+// FORGOT PASSWORD — STEP 3: verify the OTP and set a new password
+router.post("/forgot-password/reset", async (req, res) => {
+    try {
+        const db = getDB();
+        const phone = cleanPhone(req.body.phone);
+        const otp = String(req.body.otp || "").trim();
+        const newPassword = String(req.body.password || "");
+
+        const saved = req.session.resetOtp;
+
+        if (!saved || saved.phone !== phone || Date.now() > saved.expires) {
+            return res.render("auth", {
+                step: "forgot",
+                name: "",
+                phone,
+                error: "This code has expired. Please request a new one."
+            });
+        }
+
+        if (saved.otp !== otp) {
+            return res.render("auth", {
+                step: "forgot-verify",
+                name: "",
+                phone,
+                error: "Incorrect code. Please check WhatsApp and try again."
+            });
+        }
+
+        if (newPassword.length < 4) {
+            return res.render("auth", {
+                step: "forgot-verify",
+                name: "",
+                phone,
+                error: "Password must be at least 4 characters."
+            });
+        }
+
+        await db.collection("users").updateOne({ phone }, { $set: { password: newPassword } });
+        delete req.session.resetOtp;
+
+        const user = await db.collection("users").findOne({ phone });
+        req.session.user = user;
+        res.redirect("/product/home");
+    } catch (err) {
+        console.error("Forgot-password reset error:", err);
+        res.status(500).send("Unable to reset password right now.");
     }
 });
 

@@ -1,150 +1,82 @@
-    <!-- TOP BAR -->
+<!-- TOP BAR -->
+<div class="top-bar">Designer Quality Styles &nbsp;•&nbsp; Handcrafted Ethnic Wear &nbsp;•&nbsp; Free Shipping On Prepaid Orders</div>
 
-    <div class="top-bar">
-        Designer Quality Styles &nbsp;•&nbsp; Handcrafted Ethnic Wear &nbsp;•&nbsp; Free Shipping On Prepaid Orders
+<!-- MAIN NAVBAR -->
+<header class="navbar">
+  <div class="nav-container">
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+
+    <nav class="left-menu" aria-label="Main navigation">
+      <a href="/product/home">Home</a>
+      <a class="nav-new" href="/product/home#trending">New Arrivals</a>
+      <a href="/ai/chat" class="ai-nav-link">AI Style Assistant</a>
+    </nav>
+
+    <div class="logo"><a href="/product/home" aria-label="Vastraa home"><h1>VASTRAA</h1><p>FASHION</p></a></div>
+
+    <div class="right-menu">
+      <form class="search-box" action="/product/home" method="GET">
+        <input name="q" type="search" value="<%= typeof q !== 'undefined' ? q : '' %>" placeholder="Search sarees, kurtas..." aria-label="Search products">
+        <button type="submit" aria-label="Search">⌕</button>
+      </form>
+      <a href="/product/home#trending" class="icon-link" aria-label="Wishlist">♡</a>
+      <a href="/product/cart" class="icon-link" aria-label="Cart">🛍️<% if(typeof cartCount !== 'undefined' && cartCount > 0){ %><span class="cart-badge"><%= cartCount %></span><% } %></a>
+      <% if(typeof user !== 'undefined' && user){ %><a href="/user/logout" class="auth-link">Logout</a><% } else { %><a href="/user/login" class="auth-link">Account</a><% } %>
     </div>
+  </div>
+</header>
 
-    <!-- MAIN NAVBAR -->
-
-    <div class="navbar">
-
-        <div class="nav-container">
-
-            <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
-                <span></span><span></span><span></span>
-            </button>
-
-            <div class="left-menu">
-                <% categories.forEach(function(cat){ %>
-                    <a href="/product/category/<%= cat._id %>#trending"><%= cat.name %></a>
-                <% }) %>
-            </div>
-
-            <div class="logo">
-                <a href="/product/home">
-                    <h1>VASTRAA</h1>
-                    <p>FASHION</p>
-                </a>
-            </div>
-
-            <div class="right-menu">
-
-                <div class="search-box">
-                    <input type="text" placeholder="Search sarees, kurtas...">
-                    <button>🔍</button>
+<!-- CATEGORY NAVBAR: video-style full-width hover mega menu -->
+<div class="category-navbar" id="categoryNavbar">
+  <div class="category-container">
+    <a href="/product/home#trending" class="highlight">Ready To Ship</a>
+    <% (categories || []).forEach(function(category){ %>
+      <div class="dropdown">
+        <a href="/product/category/<%= category._id %>#trending" class="<%= (typeof filterCategoryId !== 'undefined' && filterCategoryId == category._id.toString()) ? 'active-link' : '' %>"><%= category.name %></a>
+        <div class="dropdown-content" role="menu" aria-label="<%= category.name %> menu">
+          <% var catProducts = (products || []).filter(function(product){ return String(product.categoryId) === String(category._id); }); %>
+          <div class="mega-layout">
+            <aside class="mega-side">
+              <a href="/product/category/<%= category._id %>#trending" class="mega-side-link active">ALL PRODUCTS <span>→</span></a>
+              <a href="/product/home#trending" class="mega-side-link">NEW ARRIVALS <span>→</span></a>
+              <a href="/product/category/<%= category._id %>#trending" class="mega-side-link">BEST SELLERS <span>→</span></a>
+              <div class="mega-count"><strong><%= catProducts.length %></strong><br>styles available</div>
+            </aside>
+            <section class="mega-main">
+              <% if(catProducts.length){ %>
+                <div class="mega-products" aria-label="<%= category.name %> products">
+                  <% catProducts.forEach(function(product){ %>
+                    <article class="mini-card">
+                      <a href="/product/view/<%= product._id %>" class="mini-img">
+                        <img loading="lazy" src="/images/<%= product.image %>" alt="<%= product.title %>" onerror="imgFallback(this, '<%= String(product.title || '').replace(/'/g, '') %>')">
+                      </a>
+                      <a href="/product/view/<%= product._id %>" class="mini-title"><%= product.title %></a>
+                      <% if(product.price){ %><strong class="mini-price">₹<%= Number(product.price).toLocaleString('en-IN') %></strong><% } %>
+                    </article>
+                  <% }) %>
                 </div>
-
-                <span class="icon-link">♡</span>
-
-                <a href="/product/cart" class="icon-link">
-                    🛍️
-                    <% if(typeof cartCount !== 'undefined' && cartCount > 0){ %>
-                        <span class="cart-badge"><%= cartCount %></span>
-                    <% } %>
-                </a>
-
-                <a href="/ai/chat" class="auth-link">AI Chat</a>
-                <% if(typeof user !== 'undefined' && user){ %>
-                    <a href="/user/logout" class="auth-link">Logout</a>
-                <% } else { %>
-                    <a href="/user/login" class="auth-link">Account</a>
-                <% } %>
-
-            </div>
-
+                <div class="mega-scroll-hint">← Drag / scroll → &nbsp; <%= catProducts.length %> products</div>
+              <% } else { %>
+                <div class="nav-empty">No products in <strong><%= category.name %></strong> yet.</div>
+              <% } %>
+              <a class="dropdown-all" href="/product/category/<%= category._id %>#trending">VIEW ALL <%= category.name %> →</a>
+            </section>
+          </div>
         </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
 
-    </div>
-
-    <!-- MOBILE SLIDE-IN MENU -->
-
-    <div class="mobile-overlay" id="mobileOverlay"></div>
-
-    <div class="mobile-drawer" id="mobileDrawer">
-
-        <div class="mobile-drawer-head">
-            <h3>Menu</h3>
-            <button id="mobileCloseBtn" aria-label="Close menu">✕</button>
-        </div>
-
-        <div class="mobile-search">
-            <input type="text" placeholder="Search sarees, kurtas...">
-            <button>🔍</button>
-        </div>
-
-        <div class="mobile-links">
-
-            <a href="/product/home">Home</a>
-
-            <% categories.forEach(function(cat){ %>
-                <a href="/product/category/<%= cat._id %>#trending"><%= cat.name %></a>
-            <% }) %>
-
-            <a href="/product/cart">Cart<% if(typeof cartCount !== 'undefined' && cartCount > 0){ %> (<%= cartCount %>)<% } %></a>
-
-            <a href="/ai/chat">AI Chat</a>
-            <% if(typeof user !== 'undefined' && user){ %>
-                <a href="/user/logout">Logout</a>
-            <% } else { %>
-                <a href="/user/login">Account</a>
-            <% } %>
-
-        </div>
-
-    </div>
-
-    <!-- CATEGORY NAVBAR -->
-
-    <div class="category-navbar">
-
-        <div class="category-container">
-
-            <a href="#" class="highlight">Ready To Ship</a>
-
-            <% categories.forEach(function(category){ %>
-
-                <div class="dropdown">
-
-                    <a href="/product/category/<%= category._id %>#trending"
-                        class="<%= (typeof filterCategoryId !== 'undefined' && filterCategoryId == category._id.toString()) ? 'active-link' : '' %>">
-                        <%= category.name %>
-                    </a>
-
-                    <div class="dropdown-content">
-
-                        <div class="dropdown-products">
-
-                            <% products.forEach(function(product){ %>
-
-                                <% if(product.categoryId == category._id.toString()) { %>
-
-                                    <div class="mini-card">
-
-                                        <a href="/product/view/<%= product._id %>" class="mini-img">
-                                            <img src="/images/<%= product.image %>" alt="<%= product.title %>"
-                                                onerror="imgFallback(this, '<%= product.title.replace(/'/g, '') %>')">
-                                        </a>
-
-                                        <a href="/product/view/<%= product._id %>" style="text-decoration:none; color:inherit;"><p><%= product.title %><% if(product.price){ %> — ₹<%= product.price.toLocaleString('en-IN') %><% } %></p></a>
-
-                                        <form action="/product/cart/add/<%= product._id %>" method="POST">
-                                            <button type="submit" class="cart-btn">Add To Cart</button>
-                                        </form>
-
-                                    </div>
-
-                                <% } %>
-
-                            <% }) %>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            <% }) %>
-
-        </div>
-
-    </div>
+<!-- MOBILE SLIDE-IN MENU -->
+<div class="mobile-overlay" id="mobileOverlay"></div>
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="mobile-drawer-head"><h3>Vastraa</h3><button id="mobileCloseBtn" aria-label="Close menu">✕</button></div>
+  <form class="mobile-search" action="/product/home" method="GET"><input name="q" type="search" placeholder="Search sarees, kurtas..."><button type="submit">⌕</button></form>
+  <div class="mobile-links">
+    <a href="/product/home">Home</a><a href="/product/home#trending">New Arrivals</a>
+    <% (categories || []).forEach(function(cat){ %><a href="/product/category/<%= cat._id %>#trending"><%= cat.name %></a><% }) %>
+    <a href="/ai/chat">✨ AI Style Assistant</a><a href="/product/cart">Cart<% if(typeof cartCount !== 'undefined' && cartCount > 0){ %> (<%= cartCount %>)<% } %></a>
+    <% if(typeof user !== 'undefined' && user){ %><a href="/user/logout">Logout</a><% } else { %><a href="/user/login">Account</a><% } %>
+  </div>
+</div>

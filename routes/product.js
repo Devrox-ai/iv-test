@@ -7,6 +7,7 @@ const fs = require("fs");
 const crypto = require("crypto");
 const { sendWhatsAppText, orderBillText } = require("../services/whatsapp");
 const router = express.Router();
+const { requireAdmin } = require("./admin");
 
 // RAZORPAY IS OPTIONAL — the store works fine with the built-in Test Payment
 // screen without it. Real Razorpay only loads if the package is installed
@@ -49,6 +50,30 @@ function requireLogin(req, res, next) {
 
 }
 
+
+function parseSizeStock(body) {
+    const stock = {};
+    const sizes = [];
+    const rawSizes = Array.isArray(body.sizes) ? body.sizes : (body.sizes ? [body.sizes] : []);
+    rawSizes.forEach(size => {
+        const clean = String(size).trim();
+        if (!clean) return;
+        const qty = Math.max(0, Number(body["sizeStock_" + clean] || 0));
+        sizes.push(clean);
+        stock[clean] = qty;
+    });
+    return { sizes, sizeStock: stock };
+}
+
+function normalizeExistingSizes(product) {
+    if (Array.isArray(product.sizes) && product.sizes.length) return product;
+    const name = String(product.title || "").toLowerCase();
+    const isSaree = name.includes("saree");
+    const sizes = isSaree ? ["Free Size"] : ["XS","S","M","L","XL","XXL"];
+    const sizeStock = {};
+    sizes.forEach(s => { sizeStock[s] = Math.max(0, Number(product.stock || 0)); });
+    return Object.assign({}, product, { sizes, sizeStock });
+}
 
 async function getNavData(db, req) {
 
@@ -198,13 +223,15 @@ router.get("/view/:id", async (req, res) => {
 
         product: product,
         categoryName: category ? category.name : null,
-        related: related
+        related: related,
+        querySizeRequired: req.query.sizeRequired === "1",
+        querySizeUnavailable: req.query.sizeUnavailable === "1"
 
     }));
 
 });
 
-router.get("/category-form", (req, res) => {
+router.get("/category-form", requireAdmin, (req, res) => {
 
     res.render("category-form", {
 
@@ -216,7 +243,7 @@ router.get("/category-form", (req, res) => {
 });
 
 // ADD CATEGORY (WITH REAL IMAGE UPLOAD)
-router.post("/category/add", (req, res) => {
+router.post("/category/add", requireAdmin, (req, res) => {
 
     upload.single("image")(req, res, async function (err) {
 
@@ -242,7 +269,7 @@ router.post("/category/add", (req, res) => {
 
 });
 
-router.get("/product-form", async (req, res) => {
+router.get("/product-form", requireAdmin, async (req, res) => {
 
     const db = getDB();
 
@@ -253,6 +280,7 @@ router.get("/product-form", async (req, res) => {
     res.render("product-form", {
 
         categories: data,
+        availableSizes: ["XS","S","M","L","XL","XXL","3XL","Free Size"],
 
         error: req.query.error || null,
         added: req.query.added || null
@@ -262,7 +290,7 @@ router.get("/product-form", async (req, res) => {
 });
 
 // ADD PRODUCT (WITH REAL IMAGE UPLOAD)
-router.post("/add", (req, res) => {
+router.post("/add", requireAdmin, (req, res) => {
 
     upload.single("image")(req, res, async function (err) {
 
@@ -282,7 +310,15 @@ router.post("/add", (req, res) => {
 
             image: req.file ? `uploads/${req.file.filename}` : "",
 
-            categoryId: req.body.categoryId
+            categoryId: req.body.categoryId,
+
+            stock: Math.max(0, Number(req.body.stock || 0)),
+
+            lowStockLimit: Math.max(0, Number(req.body.lowStockLimit || 5)),
+
+            ...parseSizeStock(req.body),
+
+            active: req.body.active !== "0"
 
         });
 
@@ -293,8 +329,35 @@ router.post("/add", (req, res) => {
 });
 
 
+// MANAGE PRODUCTS — ADMIN
+router.get("/manage", requireAdmin, async (req, res) => {
+    try {
+        const db = getDB();
+        const [products, categories] = await Promise.all([
+            db.collection("products").find({}).sort({ _id: -1 }).toArray(),
+            db.collection("categories").find({}).toArray()
+        ]);
+
+        const categoryMap = {};
+        categories.forEach(category => {
+            categoryMap[category._id.toString()] = category.name;
+        });
+
+        res.render("manage-products", {
+            products,
+            categories,
+            categoryMap,
+            deleted: req.query.deleted || null,
+            updated: req.query.updated || null
+        });
+    } catch (err) {
+        console.error("Manage products error:", err);
+        res.status(500).send("Could not load products.");
+    }
+});
+
 // EDIT PRODUCT FORM
-router.get("/edit/:id", async (req, res) => {
+router.get("/edit/:id", requireAdmin, async (req, res) => {
 
     const db = getDB();
 
@@ -317,8 +380,9 @@ router.get("/edit/:id", async (req, res) => {
 
     res.render("product-edit", {
 
-        product: product,
+        product: normalizeExistingSizes(product),
         categories: categories,
+        availableSizes: ["XS","S","M","L","XL","XXL","3XL","Free Size"],
         error: req.query.error || null
 
     });
@@ -326,7 +390,7 @@ router.get("/edit/:id", async (req, res) => {
 });
 
 // UPDATE PRODUCT (price, title, category, and optionally a new image)
-router.post("/update/:id", (req, res) => {
+router.post("/update/:id", requireAdmin, (req, res) => {
 
     upload.single("image")(req, res, async function (err) {
 
@@ -348,7 +412,11 @@ router.post("/update/:id", (req, res) => {
 
             title: req.body.title,
             price: Number(req.body.price) || 0,
-            categoryId: req.body.categoryId
+            categoryId: req.body.categoryId,
+            stock: Math.max(0, Number(req.body.stock || 0)),
+            lowStockLimit: Math.max(0, Number(req.body.lowStockLimit || 5)),
+            ...parseSizeStock(req.body),
+            active: req.body.active !== "0"
 
         };
 
@@ -375,12 +443,12 @@ router.post("/update/:id", (req, res) => {
 
 });
 
-router.get("/manage-orders", (req, res) => {
+router.get("/manage-orders", requireAdmin, (req, res) => {
     res.redirect("/admin/dashboard");
 });
 
 // DELETE A PRODUCT (removes DB entry + its uploaded image file)
-router.post("/delete/:id", async (req, res) => {
+router.post("/delete/:id", requireAdmin, async (req, res) => {
 
     const db = getDB();
 
@@ -412,7 +480,7 @@ router.post("/delete/:id", async (req, res) => {
 
 
 // MANAGE CATEGORIES — LIST ALL + DELETE OPTION
-router.get("/manage-categories", async (req, res) => {
+router.get("/manage-categories", requireAdmin, async (req, res) => {
 
     const db = getDB();
 
@@ -430,7 +498,7 @@ router.get("/manage-categories", async (req, res) => {
 });
 
 // DELETE A CATEGORY (removes DB entry + its uploaded image file)
-router.post("/category/delete/:id", async (req, res) => {
+router.post("/category/delete/:id", requireAdmin, async (req, res) => {
 
     const db = getDB();
 
@@ -487,39 +555,63 @@ router.get("/cart", requireLogin, async (req, res) => {
 
 router.post("/cart/add/:id", requireLogin, async (req, res) => {
 
-    const db = getDB();
+    try {
+        const db = getDB();
+        const productCollection = db.collection("products");
+        const cartCollection = db.collection("cart");
 
-    const productCollection =
-    db.collection("products");
+        const product = await productCollection.findOne({ _id: new ObjectId(req.params.id) });
+        if (!product) return res.redirect("/product/home");
 
-    const cartCollection =
-    db.collection("cart");
+        const normalized = normalizeExistingSizes(product);
+        const selectedSize = String(req.body.size || "").trim();
 
-    const product =
-    await productCollection.findOne({
+        if (normalized.sizes && normalized.sizes.length && !selectedSize) {
+            return res.redirect("/product/view/" + product._id + "?sizeRequired=1");
+        }
 
-        _id: new ObjectId(req.params.id)
+        if (selectedSize && !normalized.sizes.includes(selectedSize)) {
+            return res.redirect("/product/view/" + product._id + "?sizeRequired=1");
+        }
 
-    });
+        if (selectedSize && normalized.sizeStock && Number(normalized.sizeStock[selectedSize] || 0) <= 0) {
+            return res.redirect("/product/view/" + product._id + "?sizeUnavailable=1");
+        }
 
-    await cartCollection.insertOne({
+        // Keep product + size as a separate cart line, so M and XL can coexist.
+        const existing = await cartCollection.findOne({
+            userId: req.session.user._id,
+            productId: product._id,
+            size: selectedSize
+        });
 
-    title: product.title,
+        if (existing) {
+            await cartCollection.updateOne(
+                { _id: existing._id },
+                { $inc: { quantity: 1 } }
+            );
+        } else {
+            await cartCollection.insertOne({
+                productId: product._id,
+                title: product.title,
+                price: product.price || 0,
+                image: product.image,
+                categoryId: product.categoryId,
+                size: selectedSize,
+                quantity: 1,
+                userId: req.session.user._id,
+                createdAt: new Date()
+            });
+        }
 
-    price: product.price || 0,
-
-    image: product.image,
-
-    categoryId: product.categoryId,
-
-    userId: req.session.user._id
+        const backPage = req.get("Referer") || "/product/home";
+        res.redirect(backPage);
+    } catch (err) {
+        console.error("Cart add error:", err);
+        res.status(500).send("Could not add product to cart.");
+    }
 
 });
-
-    res.redirect("/product/cart");
-
-});
-
 
 // REMOVE PRODUCT FROM CART
 router.post("/cart/delete/:id", requireLogin, async (req, res) => {
@@ -554,7 +646,7 @@ router.get("/cart/total", requireLogin, async (req, res) => {
     }).toArray();
 
     const total = cartItems.reduce(function (sum, item) {
-        return sum + (item.price || 0);
+        return sum + ((item.price || 0) * Number(item.quantity || 1));
     }, 0);
 
     res.json({
@@ -584,7 +676,7 @@ router.post("/checkout/fake-pay", requireLogin, async (req, res) => {
     }
 
     const totalRupees = cartItems.reduce(function (sum, item) {
-        return sum + (item.price || 0);
+        return sum + ((item.price || 0) * Number(item.quantity || 1));
     }, 0);
 
     if (totalRupees <= 0) {
@@ -623,6 +715,84 @@ router.post("/checkout/fake-pay", requireLogin, async (req, res) => {
 });
 
 
+
+// CASH ON DELIVERY — create a pending order and clear the user's cart.
+router.post("/checkout/cod", requireLogin, async (req, res) => {
+
+    try {
+
+        const db = getDB();
+
+        const cartCollection = db.collection("cart");
+        const orderCollection = db.collection("orders");
+
+        const cartItems = await cartCollection.find({
+            userId: req.session.user._id
+        }).toArray();
+
+        if (cartItems.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Your cart is empty."
+            });
+        }
+
+        const totalRupees = cartItems.reduce(function (sum, item) {
+            return sum + ((item.price || 0) * Number(item.quantity || 1));
+        }, 0);
+
+        if (totalRupees <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Your cart total must be greater than ₹0."
+            });
+        }
+
+        const orderResult = await orderCollection.insertOne({
+
+            userId: req.session.user._id,
+            items: cartItems,
+            total: totalRupees,
+            paymentMode: "cod",
+            status: "pending",
+            createdAt: new Date()
+
+        });
+
+        await cartCollection.deleteMany({
+            userId: req.session.user._id
+        });
+
+        const savedOrder = await orderCollection.findOne({
+            _id: orderResult.insertedId
+        });
+
+        if (req.session.user.phone && req.session.user.whatsappOptIn !== false) {
+            sendWhatsAppText(
+                req.session.user.phone,
+                orderBillText(savedOrder, req.session.user)
+            ).catch(err => console.error("Automatic WhatsApp COD bill failed:", err));
+        }
+
+        res.json({
+            success: true,
+            redirect: "/product/order-success/" + orderResult.insertedId
+        });
+
+    } catch (err) {
+
+        console.error("COD order failed:", err);
+
+        res.status(500).json({
+            success: false,
+            message: "Could not place the COD order. Please try again."
+        });
+
+    }
+
+});
+
+
 // CREATE A RAZORPAY ORDER FOR THE CURRENT USER'S CART
 router.post("/checkout/create-order", requireLogin, async (req, res) => {
 
@@ -643,7 +813,7 @@ router.post("/checkout/create-order", requireLogin, async (req, res) => {
     }
 
     const totalRupees = cartItems.reduce(function (sum, item) {
-        return sum + (item.price || 0);
+        return sum + ((item.price || 0) * Number(item.quantity || 1));
     }, 0);
 
     if (totalRupees <= 0) {
@@ -710,7 +880,7 @@ router.post("/checkout/verify", requireLogin, async (req, res) => {
     }).toArray();
 
     const totalRupees = cartItems.reduce(function (sum, item) {
-        return sum + (item.price || 0);
+        return sum + ((item.price || 0) * Number(item.quantity || 1));
     }, 0);
 
     const orderResult = await orderCollection.insertOne({

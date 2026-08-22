@@ -1,0 +1,1 @@
+Desktop category hover now uses a fixed full-width panel positioned under the category ribbon via JS, with a short close delay so the pointer can move into the panel. Mobile uses the existing hamburger drawer.

@@ -215,6 +215,17 @@
                     >
                 </div>
 
+                <!-- INVENTORY -->
+                <div class="field">
+                    <label>Stock Quantity</label>
+                    <input type="number" name="stock" min="0" step="1" value="0" required>
+                </div>
+
+                <div class="field">
+                    <label>Low Stock Alert At</label>
+                    <input type="number" name="lowStockLimit" min="0" step="1" value="5" required>
+                </div>
+
                 <!-- CATEGORY -->
 
                 <div class="field">
@@ -228,6 +239,23 @@
                         <% }) %>
 
                     </select>
+                </div>
+
+                <!-- SIZE INVENTORY -->
+                <div class="field">
+                    <label>Available Sizes & Size-wise Stock</label>
+                    <div class="size-admin-grid">
+                    <% availableSizes.forEach(function(size){ %>
+                        <div class="size-admin-item">
+                            <label>
+                                <span><input type="checkbox" name="sizes" value="<%= size %>" <%= size === 'Free Size' ? '' : '' %> onchange="toggleSizeStock(this)"> <%= size %></span>
+                                <span>Stock</span>
+                            </label>
+                            <input type="number" name="sizeStock_<%= size %>" min="0" step="1" value="0" disabled>
+                        </div>
+                    <% }) %>
+                    </div>
+                    <div style="font-size:10px;color:#8a7b82;margin-top:8px;">Tick only the sizes you actually sell. The stock number controls that size's availability.</div>
                 </div>
 
                 <!-- IMAGE UPLOAD -->
@@ -256,6 +284,11 @@
     </div>
 
     <script>
+        function toggleSizeStock(box){
+            const input = box.closest(".size-admin-item").querySelector('input[type="number"]');
+            if(input){ input.disabled = !box.checked; if(box.checked && input.value === "0") input.value = "1"; }
+        }
+
         const imageInput = document.getElementById("imageInput");
         const uploadBox = document.getElementById("uploadBox");
         const previewWrap = document.getElementById("previewWrap");

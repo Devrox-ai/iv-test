@@ -55,7 +55,11 @@ function orderBillText(order, user) {
         `Customer: ${user?.name || "Customer"}`,
         `Order ID: ${order._id}`,
         "",
-        ...(order.items || []).map((item, i) => `${i + 1}. ${item.title} — ₹${Number(item.price || 0).toLocaleString("en-IN")}`),
+        ...(order.items || []).map((item, i) => {
+            const qty = Number(item.quantity || 1);
+            const size = item.size ? ` | Size: ${item.size}` : "";
+            return `${i + 1}. ${item.title}${size} × ${qty} — ₹${(Number(item.price || 0) * qty).toLocaleString("en-IN")}`;
+        }),
         "",
         `*Total: ₹${Number(order.total || 0).toLocaleString("en-IN")}*`,
         `Payment: ${order.paymentMode === "test" ? "Test payment" : "Paid"}`,
