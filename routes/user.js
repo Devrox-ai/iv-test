@@ -12,26 +12,44 @@ function generateOtp() {
 }
 
 router.get("/login", (req, res) => {
+    // If the current browser already has a valid session, there is no reason
+    // to make the customer log in again.
+    if (req.session.user) return res.redirect(req.query.next || "/product/home");
+
     res.render("auth", {
         step: "start",
         name: "",
         phone: "",
+        next: req.query.next || "",
         error: req.query.error || null
+    });
+});
+
+// Direct registration entry point for customers who do not have an account yet.
+router.get("/register", (req, res) => {
+    if (req.session.user) return res.redirect("/product/home");
+    res.render("auth", {
+        step: "register",
+        name: "",
+        phone: "",
+        next: req.query.next || "",
+        error: null
     });
 });
 
 router.post("/continue", async (req, res) => {
     try {
         const db = getDB();
-        const name = String(req.body.name || "").trim();
         const phone = cleanPhone(req.body.phone);
+        const next = String(req.body.next || "");
 
-        if (!name || phone.length < 10) {
+        if (phone.length < 10) {
             return res.render("auth", {
                 step: "start",
-                name,
+                name: "",
                 phone: req.body.phone || "",
-                error: "Please enter your full name and a valid mobile number."
+                next,
+                error: "Please enter a valid mobile number."
             });
         }
 
@@ -40,16 +58,18 @@ router.post("/continue", async (req, res) => {
         if (user) {
             return res.render("auth", {
                 step: "password",
-                name: user.name || name,
+                name: user.name || "",
                 phone,
+                next,
                 error: null
             });
         }
 
         return res.render("auth", {
             step: "register",
-            name,
+            name: "",
             phone,
+            next,
             error: null
         });
     } catch (err) {
@@ -71,6 +91,7 @@ router.post("/login", async (req, res) => {
                 step: "password",
                 name: req.body.name || "",
                 phone,
+                next: req.body.next || "",
                 error: "Incorrect password. Please try again."
             });
         }
@@ -96,6 +117,7 @@ router.post("/register", async (req, res) => {
                 step: "register",
                 name,
                 phone,
+                next: req.body.next || "",
                 error: "Name, valid mobile number and a 4+ character password are required."
             });
         }
@@ -106,6 +128,7 @@ router.post("/register", async (req, res) => {
                 step: "password",
                 name: existing.name || name,
                 phone,
+                next: req.body.next || "",
                 error: "This mobile number is already registered. Please enter your password."
             });
         }

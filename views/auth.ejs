@@ -1,101 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Account — Vastraa</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Poppins,sans-serif}
-body{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at top,#4b1933,#160914 65%);color:#fff}
-.auth{width:min(440px,100%);padding:34px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.09);backdrop-filter:blur(18px);border-radius:26px;box-shadow:0 25px 70px rgba(0,0,0,.35)}
-.brand{text-align:center;letter-spacing:5px;font-size:28px;font-weight:600}.sub{text-align:center;color:#d9cbd2;font-size:13px;margin:8px 0 28px}
-h2{font-size:21px;margin-bottom:8px}.hint{font-size:12px;color:#cdbbc5;margin-bottom:20px;line-height:1.6}
-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#e6d9df;margin:14px 0 7px}
-input{width:100%;padding:14px 15px;border:1px solid rgba(255,255,255,.15);border-radius:13px;background:rgba(255,255,255,.1);color:#fff;outline:none}
-input:focus{border-color:#d7a4b9}.btn{width:100%;border:0;border-radius:14px;padding:14px;margin-top:20px;background:linear-gradient(135deg,#d6a0b7,#7f294f);color:#fff;font-weight:600;cursor:pointer}
-.error{background:#ffebee;color:#8a1c2a;padding:11px 13px;border-radius:10px;font-size:12px;margin-bottom:15px}
-.back{text-align:center;margin-top:17px;font-size:12px}.back a{color:#efbfd2;text-decoration:none}
-.check{display:flex;gap:9px;align-items:flex-start;margin-top:14px;font-size:11px;color:#d9cbd2}.check input{width:auto;margin-top:3px}
-.user-pill{display:inline-block;padding:7px 11px;border-radius:30px;background:rgba(255,255,255,.1);font-size:12px;margin-bottom:16px}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#f8f0ea;color:#3b1726;font-family:Arial,sans-serif;display:grid;place-items:center;padding:20px}
+.card{width:min(430px,100%);background:#fff;border:1px solid #eadbd4;border-radius:24px;padding:30px;box-shadow:0 18px 55px #3b17261a}.brand{text-align:center;font:32px Georgia;color:#681b3a;letter-spacing:5px}.sub{text-align:center;color:#8a737d;font-size:12px;margin:7px 0 25px}.error{background:#fff0f0;color:#9c2636;border:1px solid #f1cccc;padding:11px 13px;border-radius:10px;font-size:12px;margin-bottom:16px}.pill{display:inline-block;background:#f8edf2;color:#681b3a;border-radius:30px;padding:7px 11px;font-size:11px;margin-bottom:14px}.title{font:24px Georgia;margin:0 0 7px}.hint{font-size:12px;color:#7c6c73;line-height:1.6;margin:0 0 18px}label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin:13px 0 7px}input{width:100%;height:46px;border:1px solid #e3d4ce;border-radius:11px;padding:0 13px;font-size:14px;outline:none;background:#fff}input:focus{border-color:#8b3154;box-shadow:0 0 0 3px #8b315411}.btn{width:100%;height:46px;border:0;border-radius:11px;background:#681b3a;color:#fff;font-weight:700;margin-top:17px;cursor:pointer}.btn:hover{background:#4f122b}.secondary{width:100%;height:46px;border:1px solid #d9c2cc;border-radius:11px;background:#fff;color:#681b3a;font-weight:700;margin-top:10px;cursor:pointer}.links{text-align:center;margin-top:18px;font-size:12px;color:#806e76}.links a{color:#681b3a;font-weight:700;text-decoration:none}.divider{display:flex;align-items:center;gap:10px;color:#a38e96;font-size:10px;margin:17px 0}.divider:before,.divider:after{content:"";height:1px;background:#eadbd4;flex:1}.back{text-align:center;margin-top:18px;font-size:11px}.back a{color:#7d5264;text-decoration:none}.check{display:flex;gap:8px;align-items:flex-start;font-size:11px;color:#75656d;margin-top:13px}.check input{width:15px;height:15px;margin-top:1px}.small{font-size:11px;color:#8c7a82}
+@media(max-width:480px){body{padding:12px}.card{padding:23px 19px;border-radius:20px}.brand{font-size:28px}}
 </style>
 </head>
 <body>
-<div class="auth">
-  <div class="brand">VASTRAA</div>
-  <div class="sub">Your account • orders • updates</div>
+<div class="card">
+<div class="brand">VASTRAA</div><div class="sub">FASHION • YOUR ACCOUNT • YOUR ORDERS</div>
+<% if(error){ %><div class="error"><%= error %></div><% } %>
 
-  <% if(error){ %><div class="error"><%= error %></div><% } %>
+<% if(step === "start"){ %>
+<h1 class="title">Welcome back</h1>
+<p class="hint">Enter your mobile number. If you already have an account, we'll take you straight to your password. New here? You can create your account below.</p>
+<form action="/user/continue" method="POST">
+<input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '' %>">
+<label>Mobile / WhatsApp Number</label>
+<input name="phone" value="<%= phone || '' %>" placeholder="9876543210" inputmode="tel" autocomplete="tel" required autofocus>
+<button class="btn">Continue to Account</button>
+</form>
+<div class="divider">OR</div>
+<a href="/user/register<%= typeof next !== 'undefined' && next ? '?next='+encodeURIComponent(next) : '' %>"><button type="button" class="secondary">Create New Account</button></a>
+<div class="links">Already have an account? Just enter the same mobile number — you won't need to register again.</div>
+<% } %>
 
-  <% if(step === "start"){ %>
-    <h2>Start with your details</h2>
-    <p class="hint">Enter your name and mobile number. If the number already exists, we'll ask for your password. Otherwise, you can create your account on this same page.</p>
-    <form action="/user/continue" method="POST">
-      <input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '' %>">
-      <label>Full Name</label>
-      <input name="name" value="<%= name %>" placeholder="Your name" required>
-      <label>Mobile / WhatsApp Number</label>
-      <input name="phone" value="<%= phone %>" placeholder="9876543210" inputmode="tel" required>
-      <button class="btn">Continue</button>
-    </form>
-  <% } %>
+<% if(step === "password"){ %>
+<span class="pill">📱 <%= phone %></span>
+<h1 class="title">Welcome back, <%= name %></h1>
+<p class="hint">Your account is already registered. Enter your password to continue.</p>
+<form action="/user/login" method="POST">
+<input type="hidden" name="name" value="<%= name %>"><input type="hidden" name="phone" value="<%= phone %>"><input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '' %>">
+<label>Password</label><input name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required autofocus>
+<button class="btn">Login</button>
+</form>
+<div class="links"><a href="/user/forgot-password">Forgot password?</a> &nbsp;•&nbsp; <a href="/user/login">Use another number</a></div>
+<% } %>
 
-  <% if(step === "password"){ %>
-    <span class="user-pill">📱 <%= phone %></span>
-    <h2>Welcome back, <%= name %></h2>
-    <p class="hint">This mobile number is already registered. Enter your password to continue.</p>
-    <form action="/user/login" method="POST">
-      <input type="hidden" name="name" value="<%= name %>">
-      <input type="hidden" name="phone" value="<%= phone %>">
-      <input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '' %>">
-      <label>Password</label>
-      <input name="password" type="password" placeholder="Enter password" required autofocus>
-      <button class="btn">Login</button>
-    </form>
-    <div class="back"><a href="/user/forgot-password">Forgot password?</a></div>
-  <% } %>
+<% if(step === "register"){ %>
+<span class="pill">✨ New customer</span>
+<h1 class="title">Create your account</h1>
+<p class="hint">Create it once. Next time, simply enter the same mobile number and your password.</p>
+<form action="/user/register" method="POST">
+<input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '' %>">
+<label>Full Name</label><input name="name" value="<%= name || '' %>" placeholder="Your full name" autocomplete="name" required>
+<label>Mobile / WhatsApp Number</label><input name="phone" value="<%= phone || '' %>" placeholder="9876543210" inputmode="tel" autocomplete="tel" required>
+<label>Create Password</label><input name="password" type="password" placeholder="At least 4 characters" minlength="4" autocomplete="new-password" required>
+<label class="check"><input type="checkbox" name="whatsappOptIn" checked><span>Send my order updates on WhatsApp.</span></label>
+<button class="btn">Create Account</button>
+</form>
+<div class="links">Already registered? <a href="/user/login">Login here</a></div>
+<% } %>
 
-  <% if(step === "forgot"){ %>
-    <h2>Reset your password</h2>
-    <p class="hint">Enter your registered mobile number. We'll send a 6-digit code on WhatsApp.</p>
-    <form action="/user/forgot-password/send-otp" method="POST">
-      <label>Mobile / WhatsApp Number</label>
-      <input name="phone" value="<%= phone %>" placeholder="9876543210" inputmode="tel" required>
-      <button class="btn">Send Code On WhatsApp</button>
-    </form>
-  <% } %>
+<% if(step === "forgot"){ %>
+<h1 class="title">Reset password</h1><p class="hint">Enter your registered mobile number to receive a reset code.</p>
+<form action="/user/forgot-password/send-otp" method="POST"><label>Mobile / WhatsApp Number</label><input name="phone" value="<%= phone || '' %>" inputmode="tel" required><button class="btn">Send Code</button></form>
+<% } %>
 
-  <% if(step === "forgot-verify"){ %>
-    <span class="user-pill">📱 <%= phone %></span>
-    <h2>Enter the code</h2>
-    <p class="hint">We've sent a 6-digit code to your WhatsApp. Enter it below along with your new password.</p>
-    <form action="/user/forgot-password/reset" method="POST">
-      <input type="hidden" name="phone" value="<%= phone %>">
-      <label>OTP Code</label>
-      <input name="otp" placeholder="6-digit code" inputmode="numeric" maxlength="6" required autofocus>
-      <label>New Password</label>
-      <input name="password" type="password" placeholder="Create a new password" minlength="4" required>
-      <button class="btn">Reset Password</button>
-    </form>
-    <div class="back"><a href="/user/forgot-password">Didn't get it? Send again</a></div>
-  <% } %>
-
-  <% if(step === "register"){ %>
-    <span class="user-pill">✨ New account</span>
-    <h2>Create your Vastraa account</h2>
-    <p class="hint">Your name and mobile number are already filled from the previous step.</p>
-    <form action="/user/register" method="POST">
-      <input type="hidden" name="name" value="<%= name %>">
-      <input type="hidden" name="phone" value="<%= phone %>">
-      <input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '' %>">
-      <label>Password</label>
-      <input name="password" type="password" placeholder="Create a password" minlength="4" required>
-      <label class="check"><input type="checkbox" name="whatsappOptIn" checked> <span>I agree to receive order updates on WhatsApp for this store.</span></label>
-      <button class="btn">Create Account & Continue</button>
-    </form>
-  <% } %>
-
-  <div class="back"><a href="/product/home">← Back to store</a></div>
+<% if(step === "forgot-verify"){ %>
+<span class="pill">📱 <%= phone %></span><h1 class="title">Enter reset code</h1><p class="hint">Enter the code sent to your WhatsApp and choose a new password.</p>
+<form action="/user/forgot-password/reset" method="POST"><input type="hidden" name="phone" value="<%= phone %>"><label>OTP Code</label><input name="otp" maxlength="6" inputmode="numeric" required autofocus><label>New Password</label><input name="password" type="password" minlength="4" required><button class="btn">Reset Password</button></form>
+<% } %>
+<div class="back"><a href="/product/home">← Back to store</a></div>
 </div>
-</body>
-</html>
+</body></html>

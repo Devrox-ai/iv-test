@@ -14,6 +14,10 @@ const aiRoutes = require("./routes/ai");
 
 const app = express();
 
+// Heroku runs behind a proxy. This lets secure cookies work correctly on the
+// public HTTPS URL while still working locally over HTTP.
+app.set("trust proxy", 1);
+
 connectDB();
 
 app.use(express.urlencoded({ extended: true }));
@@ -23,6 +27,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET || "change-this-session-secret",
     resave: false,
     saveUninitialized: false,
+    rolling: true,
     // FIX: sessions were stored in memory only, so every server restart/redeploy
     // (or running more than one server instance) logged everyone out and forced
     // them to enter name/number again. Now sessions persist in MongoDB, so a
@@ -36,7 +41,7 @@ app.use(session({
     cookie: {
         httpOnly: true,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        secure: "auto",
         maxAge: 1000 * 60 * 60 * 24 * 30
     }
 }));
